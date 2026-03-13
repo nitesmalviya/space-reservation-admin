@@ -221,3 +221,10 @@ export const INDUSTRY_OPTIONS = [
   { value: "TECHNOLOGY", label: "Technology" },
   { value: "OTHER", label: "Other" },
 ];
+
+export const formatSpaceType = (type: string) => {
+  return type
+    ?.replace(/_/g, " ")
+    ?.toLowerCase()
+    ?.replace(/\b\w/g, (c) => c.toUpperCase());
+};

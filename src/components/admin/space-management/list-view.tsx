@@ -1,5 +1,6 @@
 import { Edit, Power, Trash2 } from "lucide-react";
-import { Space } from ".";
+import { Space } from "@/types/spaces-type";
+import { formatSpaceType } from "@/utils/constant";
 
 interface ListViewProps {
   readonly handleViewDetails: (space: Space) => void;
@@ -16,6 +17,7 @@ export default function ListView({
   handleToggleStatus,
   handleDeleteSpace,
 }: ListViewProps) {
+
   return (
     <div className="bg-white rounded-lg border border-gray-200">
       <div className="overflow-auto">
@@ -59,14 +61,14 @@ export default function ListView({
                 </td>
                 <td className="px-5 py-4">
                   <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs">
-                    {space.type}
+                    {formatSpaceType(space.type)}
                   </span>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-sm text-gray-900">
-                    {space.location.floor}
+                    {space.floor}
                   </p>
-                  <p className="text-xs text-gray-500">{space.location.wing}</p>
+                  <p className="text-xs text-gray-500">{space?.location?.name}</p>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-sm text-gray-900">
@@ -85,16 +87,16 @@ export default function ListView({
                         </div>
                         <div>
                           <p className="text-sm text-gray-900 font-medium">
-                            {space.currentOccupancy.user}
+                            {space?.currentOccupancy?.user}
                           </p>
                           <p className="text-xs text-gray-500">
-                            {space.currentOccupancy.department}
+                            {space?.currentOccupancy?.department}
                           </p>
                         </div>
                       </div>
                       <p className="text-xs text-gray-500">
-                        {space.currentOccupancy.startTime} -{" "}
-                        {space.currentOccupancy.endTime}
+                        {space?.currentOccupancy?.startTime} -{" "}
+                        {space?.currentOccupancy?.endTime}
                       </p>
                     </div>
                   ) : (
@@ -103,11 +105,10 @@ export default function ListView({
                 </td>
                 <td className="px-5 py-4">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs ${
-                      space.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-2 py-1 rounded-full text-xs ${space.status === "Active"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {space.status}
                   </span>
@@ -129,11 +130,10 @@ export default function ListView({
                         e.stopPropagation();
                         handleToggleStatus(space.id);
                       }}
-                      className={`p-1.5 rounded-lg transition-colors ${
-                        space.status === "Active"
-                          ? "text-red-600 hover:bg-red-50"
-                          : "text-green-600 hover:bg-green-50"
-                      }`}
+                      className={`p-1.5 rounded-lg transition-colors ${space.status === "Active"
+                        ? "text-red-600 hover:bg-red-50"
+                        : "text-green-600 hover:bg-green-50"
+                        }`}
                       title={
                         space.status === "Active" ? "Deactivate" : "Activate"
                       }
