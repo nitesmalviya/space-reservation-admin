@@ -9,6 +9,7 @@ import {
   Clock,
   UserCheck,
 } from "lucide-react";
+import { formatSpaceType } from "@/utils/constant";
 
 interface GridViewProps {
   readonly spaces: Space[];
@@ -39,8 +40,9 @@ export default function GridView({
             <div>
               <h3 className="text-gray-900 text-base font-medium mb-1">
                 {space?.name}
+
               </h3>
-              <p className="text-xs text-gray-500">{space?.type}</p>
+              <p className="text-xs text-gray-500"> {formatSpaceType(space.type)}</p>
             </div>
             <div className="flex flex-col items-end gap-1">
               <span

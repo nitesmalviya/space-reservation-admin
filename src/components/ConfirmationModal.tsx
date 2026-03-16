@@ -72,7 +72,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const styles = getVariantStyles();
 
   return createPortal(
-    <button
+    <div
       className="fixed inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center z-9999 transition-opacity duration-300 "
     >
       <div
@@ -127,7 +127,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </button>
         </div>
       </div>
-    </button>,
+    </div>,
     document.body,
   );
 };

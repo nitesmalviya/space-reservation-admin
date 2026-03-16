@@ -1,7 +1,8 @@
 import { X } from "lucide-react";
 import { spaceTypes, CreateSpaceInput } from "../../../types/spaces-type";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import SimpleReactValidator from "simple-react-validator";
+import { getAllSpaceAction } from "@/utils/graphql/spaces/actions";
 
 export interface SpaceFormData {
   amenityIds: string[] | undefined;
@@ -76,14 +77,82 @@ const NewSpaceModal = ({
 
   const [formData, setFormData] = useState<SpaceFormData>(emptyForm);
   const [, forceUpdate] = useState(0);
-
-
+  const [loading, setLoading] = useState(false);
+  const [amenitiesList, setAmenitiesList] = useState<any[]>([]);
 
   const validator = useRef(
     new SimpleReactValidator({
       className: "text-[13px] font-semibold text-[#F4364C] mt-1",
     })
   ).current;
+
+
+  const fetchAmenities = async () => {
+    setLoading(true);
+
+    try {
+      const res = await getAllSpaceAction({});
+
+      if (res?.spaces?.success) {
+
+        const spaces = res.spaces.items || [];
+
+        const allAmenities = spaces.flatMap((space: any) => space.amenities || []);
+
+        const uniqueAmenities = Array.from(
+          new Map(allAmenities.map((item: any) => [item.id, item])).values()
+        );
+
+        setAmenitiesList(uniqueAmenities);
+      }
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchAmenities();
+      setFormData(emptyForm);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (selectedSpace) {
+      setFormData({
+        name: selectedSpace.name || "",
+        type: selectedSpace.type || "",
+        capacity: selectedSpace.capacity?.toString() || "",
+        floor: selectedSpace.floor || "",
+        wing: selectedSpace.wing || "",
+        building: selectedSpace.building || "",
+        startTime: selectedSpace.startTime || "",
+        endTime: selectedSpace.endTime || "",
+        slotDuration: selectedSpace.slotDuration || 30,
+        // locationName: selectedSpace.locationName || "",
+        locationName: selectedSpace.location?.name || "",
+        amenityIds: selectedSpace.amenities?.map((a: any) => a.id) || [],
+        description: selectedSpace.description || "",
+        amenities: [],
+      });
+    } else {
+      setFormData(emptyForm);
+    }
+  }, [selectedSpace]);
+
+  const generalAmenities = amenitiesList.filter(
+    (item) => item.category === "GENERAL"
+  );
+
+  const meetingAmenities = amenitiesList.filter(
+    (item) => item.category === "MEETING"
+  );
+
+  const equipmentAmenities = amenitiesList.filter(
+    (item) => item.category === "EQUIPMENT"
+  );
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -94,15 +163,30 @@ const NewSpaceModal = ({
     }));
   };
 
-  if (!isOpen) return null;
+  const handleAmenityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { value, checked } = e.target;
 
+    setFormData((prev) => {
+      const prevAmenities = prev.amenityIds || [];
+
+      return {
+        ...prev,
+        amenityIds: checked
+          ? [...prevAmenities, value]
+          : prevAmenities.filter((id) => id !== value),
+      };
+    });
+  };
+
+  if (!isOpen) return null;
 
   // Payload mapper
   const mapFormToPayload = (data: SpaceFormData): CreateSpaceInput => ({
+
     name: data.name,
     type: data.type,
     locationName: data.locationName,
-    orgId: "cf117671-e13c-4232-849a-dfe9f3265c87",
+    orgId: "b51cc444-81ab-4509-9e2d-69a2e0b2e688",
     capacity: Number(data.capacity) || 0,
     wing: data.wing,
     building: data.building,
@@ -119,6 +203,11 @@ const NewSpaceModal = ({
 
     if (validator.allValid()) {
       const payload = mapFormToPayload(formData);
+
+      if (selectedSpace) {
+        payload.id = selectedSpace.id; // for update
+      }
+
       onSave(payload);
 
     } else {
@@ -127,28 +216,31 @@ const NewSpaceModal = ({
     }
   };
 
-  const renderAmenitiesArray = (list: string[]) =>
-    list.map((item) => (
-      <label key={item} className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
+  const renderAmenities = (title: string, list: any[]) => (
+    <div>
+      <h3 className="text-sm font-medium mb-3">{title}</h3>
 
-          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-        />
-        <span className="text-sm text-gray-700">{item}</span>
-      </label>
-    ));
-  const renderAmenities = (list: string[]) =>
-    list.map((item) => (
-      <label key={item} className="flex items-center gap-2 cursor-pointer">
-        <input
-          type="checkbox"
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
 
-          className="w-4 h-4 text-orange-600 border-gray-300 rounded focus:ring-orange-500"
-        />
-        <span className="text-sm text-gray-700">{item}</span>
-      </label>
-    ));
+        {list.map((item) => (
+          <label key={item.id} className="flex items-center gap-2 cursor-pointer">
+
+            <input
+              type="checkbox"
+              value={item.id}
+              checked={formData?.amenityIds?.includes(item.id)}
+              onChange={handleAmenityChange}
+              className="w-4 h-4 text-orange-600 border-gray-300 rounded"
+            />
+
+            <span className="text-sm text-gray-700">{item.name}</span>
+
+          </label>
+        ))}
+
+      </div>
+    </div>
+  );
 
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.4)] flex items-center justify-center z-50 p-4"
@@ -160,7 +252,7 @@ const NewSpaceModal = ({
         {/* Header */}
         <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
           <h2 className="text-gray-900 text-lg">
-            {isOpen ? "Add New Space" : "Edit Space"}
+            {selectedSpace ? "Edit Space" : "Add New Space"}
           </h2>
           <button
             onClick={onClose}
@@ -169,10 +261,8 @@ const NewSpaceModal = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-
         {/* FORM */}
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
-
           {/* Basic Details */}
           <div className="grid md:grid-cols-2 gap-4">
             <div>
@@ -226,29 +316,10 @@ const NewSpaceModal = ({
               {validator.message("locationName", formData.locationName, "required|min:5")}
             </div>
           </div>
-
           {/* Amenities */}
-          <div>
-            <h3 className="text-sm font-medium mb-3">General Amenities</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {renderAmenitiesArray(generalAmenities)}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium mb-3">Meeting Amenities</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {renderAmenities(meetingAmenities)}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-medium mb-3">Equipment</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {renderAmenities(equipmentAmenities)}
-            </div>
-          </div>
-
+          {renderAmenities("General Amenities", generalAmenities)}
+          {renderAmenities("Meeting Amenities", meetingAmenities)}
+          {renderAmenities("Equipment", equipmentAmenities)}
           {/* Availability */}
           <div className="grid md:grid-cols-3 gap-4">
             <div>
@@ -271,26 +342,7 @@ const NewSpaceModal = ({
                 onChange={handleChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
               />
-
-
-              <input
-                placeholder="description"
-                type="text"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-              />
-              <input
-                placeholder="amenityIds"
-                type="text"
-                name="amenityIds"
-                value={formData.amenityIds}
-                onChange={handleChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-              />
             </div>
-
             <div>
               <label className="block text-gray-700 mb-2 text-sm">Slot Duration*</label>
               <select
@@ -305,7 +357,6 @@ const NewSpaceModal = ({
               </select>
             </div>
           </div>
-
           {/* Buttons */}
           <div className="flex gap-3 pt-4 border-t">
             <button

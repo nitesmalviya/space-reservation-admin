@@ -8,8 +8,11 @@ import {
     SpacesInput,
     CreateSpaceInput,
     CreateSpaceResponse,
+    RemoveSpaceInput,
+    UpdateSpaceInput,
+    UpdateSpaceResponse,
 } from "@/types/spaces-type";
-import { CREATE_SPACES_MUTATION, GET_ALL_SPACES_QUERY, GET_SPACE_STATS_QUERY } from "./query";
+import { CREATE_SPACES_MUTATION, GET_ALL_SPACES_QUERY, GET_SPACE_STATS_QUERY, REMOVE_SPACES_MUTATION, UPDATE_SPACES_MUTATION } from "./query";
 
 
 // Get space stats action
@@ -42,6 +45,32 @@ export const createSpaceAction = async (
 ): Promise<any> => {
     const res = await fetchGraphQLMutation<any>(
         CREATE_SPACES_MUTATION,
+        {
+            input: variables,
+        },
+    );
+    return res;
+};
+
+//Remove space
+export const removeSpaceAction = async (
+    variables: RemoveSpaceInput,
+): Promise<any> => {
+    const res = await fetchGraphQLMutation<any>(
+        REMOVE_SPACES_MUTATION,
+        {
+            removeSpaceId: variables.id,
+        },
+    );
+    return res;
+};
+
+//Update space
+export const updateSpaceAction = async (
+    variables: UpdateSpaceInput,
+): Promise<UpdateSpaceResponse> => {
+    const res = await fetchGraphQLMutation<UpdateSpaceResponse>(
+        UPDATE_SPACES_MUTATION,
         {
             input: variables,
         },

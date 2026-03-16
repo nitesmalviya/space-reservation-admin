@@ -34,7 +34,7 @@ export interface Space {
     endTime: string;
     bookings: number;
     locationName: any;
-    id?: string;
+    id: string;
     name: string;
     type: string;
     capacity: number;
@@ -86,16 +86,12 @@ export interface CreateSpaceInput {
     name: string;
     type: string;
     capacity: number;
-
     locationName: string;
     orgId: string;
-
     startTime: string;
     endTime: string;
     slotDuration: number;
-
     amenityIds?: string[];
-
     building?: string;
     floor?: string;
     wing?: string;
@@ -108,5 +104,40 @@ export interface CreateSpaceResponse {
             success: boolean;
             message: string;
         };
+    };
+}
+
+export interface RemoveSpaceInput {
+    id: string;
+}
+export interface RemoveSpaceResponse {
+    data: {
+        removeSpace: {
+            success: boolean;
+            message: string;
+        };
+    };
+}
+
+export interface UpdateSpaceInput {
+    id: string;
+    name: string;
+    type: string;
+    capacity: number;
+    locationName: string;
+    orgId: string;
+    startTime: string;
+    endTime: string;
+    slotDuration: number;
+    amenityIds?: string[];
+    building?: string;
+    floor?: string;
+    wing?: string;
+    description?: string;
+}
+export interface UpdateSpaceResponse {
+    updateSpace: {
+        success: boolean;
+        message: string;
     };
 }

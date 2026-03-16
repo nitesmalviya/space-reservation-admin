@@ -9,7 +9,7 @@ import { ConfirmationModal } from "@/components/ConfirmationModal";
 
 import NewSpaceModal from "./space-modal";
 import type { CreateSpaceInput, Space } from "@/types/spaces-type";
-import { createSpaceAction, getAllSpaceAction } from "@/utils/graphql/spaces/actions";
+import { createSpaceAction, getAllSpaceAction, removeSpaceAction } from "@/utils/graphql/spaces/actions";
 import { toast } from "sonner";
 
 
@@ -51,6 +51,7 @@ export function OrgAdminSpaces({
   const [showFilters, setShowFilters] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [filters, setFilters] = useState({
     type: "all",
@@ -59,13 +60,11 @@ export function OrgAdminSpaces({
     capacity: "all",
   });
 
-  console.log("spaces List", spacesList);
-
   // Confirmation modal state
   const [confirmAction, setConfirmAction] = useState<
     "delete" | "toggle" | null
   >(null);
-  const [spaceToAct, setSpaceToAct] = useState<Space | null>(null);
+
 
   // Filter and search logic
   const filteredSpaces = useMemo(() => {
@@ -92,29 +91,44 @@ export function OrgAdminSpaces({
 
   const handleEditSpace = (space: Space) => {
     setSelectedSpace(space);
+    setIsModalOpen(true); // open modal
   };
 
   const handleDeleteSpace = (id: string) => {
-    const space = spacesList.find((s) => s.id === id) ?? null;
-    setSpaceToAct(space);
+    setDeleteId(id);
     setConfirmAction("delete");
   };
 
   const handleToggleStatus = (id: string) => {
-    const space = spacesList.find((s) => s.id === id) ?? null;
-    setSpaceToAct(space);
+    setSpaceList(prev => prev.map(space => space.id === id ? { ...space, status: space.status === "Active" ? "Inactive" : "Active" } : space))
     setConfirmAction("toggle");
   };
 
-  const handleConfirmAction = () => {
-    if (!spaceToAct) return;
-    if (confirmAction === "delete") {
-      // TODO: call delete API
-    } else if (confirmAction === "toggle") {
-      // TODO: call status toggle API
+  const handleConfirmAction = async () => {
+    debugger;
+    if (confirmAction === "delete" && deleteId) {
+      try {
+        setLoading(true);
+        const res = await removeSpaceAction({ id: deleteId });
+        console.log(res, "res of id");
+        if (res?.removeSpace?.success) {
+          toast.success(res.removeSpace.message);
+          const refreshedList = await getAllSpaceAction({
+
+          });
+
+          setSpaceList(refreshedList.spaces.items);
+        } else {
+          toast.error(res?.removeSpace?.message || "Failed to delete space");
+        }
+      } catch (error: any) {
+        toast.error(error?.message || "Unexpected error occurred");
+      } finally {
+        setLoading(false);
+        setConfirmAction(null);
+        setDeleteId(null);
+      }
     }
-    setConfirmAction(null);
-    setSpaceToAct(null);
   };
 
   const handleViewDetails = (space: Space) => {
@@ -149,12 +163,9 @@ export function OrgAdminSpaces({
   const handleAddCSpace = async (newSpace: CreateSpaceInput) => {
     try {
       setLoading(true);
-      console.log("FULL RESPONSE: newSpace", newSpace);
-      debugger
 
       const res = await createSpaceAction(newSpace);
-      console.log("FULL RESPONSE:", res);
-
+      debugger
       if (res?.createSpace?.success) {
         toast.success(res.createSpace.message);
         setIsModalOpen(false);
@@ -416,12 +427,16 @@ export function OrgAdminSpaces({
 
       {/* Add/Edit Space Modal */}
 
+
       <NewSpaceModal
         selectedSpace={selectedSpace}
         onSave={handleAddCSpace}
         loading={loading}
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedSpace(null);
+        }}
       />
 
 
@@ -430,32 +445,14 @@ export function OrgAdminSpaces({
         isOpen={confirmAction !== null}
         onClose={() => {
           setConfirmAction(null);
-          setSpaceToAct(null);
+          setDeleteId(null);
         }}
         onConfirm={handleConfirmAction}
-        title={
-          confirmAction === "delete"
-            ? "Delete Space"
-            : spaceToAct?.status === "Active"
-              ? "Deactivate Space"
-              : "Activate Space"
-        }
-        description={
-          confirmAction === "delete"
-            ? `Are you sure you want to delete "${spaceToAct?.name}"? This action cannot be undone.`
-            : spaceToAct?.status === "Active"
-              ? `Are you sure you want to deactivate "${spaceToAct?.name}"? It will no longer be bookable.`
-              : `Are you sure you want to activate "${spaceToAct?.name}"? It will become available for bookings.`
-        }
-        confirmLabel={
-          confirmAction === "delete"
-            ? "Delete"
-            : spaceToAct?.status === "Active"
-              ? "Deactivate"
-              : "Activate"
-        }
+        title="Delete Space"
+        description="Are you sure you want to delete this space? This action cannot be undone."
+        confirmLabel="Delete"
         cancelLabel="Cancel"
-        variant={confirmAction === "delete" ? "danger" : "info"}
+        variant="danger"
       />
     </div>
   );
