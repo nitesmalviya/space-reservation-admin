@@ -28,29 +28,6 @@ interface NewSpaceModalProps {
   isOpen: boolean;
 }
 
-const generalAmenities = [
-  "Air Conditioning",
-  "Heating",
-  "WiFi",
-  "Drinking Water",
-  "Power Backup",
-  "Washrooms",
-];
-
-const meetingAmenities = [
-  "Projector",
-  "TV Screen",
-  "HDMI Connector",
-  "Type-C Connector",
-];
-
-const equipmentAmenities = [
-  "Projectors",
-  "Extra Chairs",
-  "Portable Whiteboards",
-  "Laptops",
-];
-
 const emptyForm: SpaceFormData = {
   name: "",
   type: "",

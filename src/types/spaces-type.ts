@@ -1,3 +1,5 @@
+import { ReactNode } from "react";
+
 export interface SpaceStatsInput {
     orgId: string;
 }
@@ -30,6 +32,7 @@ export interface SpacesInput {
 }
 
 export interface Space {
+    slotDuration: ReactNode;
     startTime: string;
     endTime: string;
     bookings: number;
@@ -42,13 +45,21 @@ export interface Space {
     currentOccupancy?: number;
     utilization?: number;
     availability?: string;
-    amenities?: Amenity[];
     building?: string;
     floor?: string;
     wing?: string;
     location: {
+        floor: ReactNode;
+        wing: ReactNode;
+        building: ReactNode;
         name: string;
         address: string;
+    };
+    amenities: {
+        filter(arg0: (a: any) => boolean): unknown;
+        general: string[];
+        meeting: string[];
+        equipment: string[];
     };
 }
 
@@ -83,6 +94,7 @@ export const spaceTypes = [
 
 
 export interface CreateSpaceInput {
+    id: any;
     name: string;
     type: string;
     capacity: number;
@@ -141,3 +153,11 @@ export interface UpdateSpaceResponse {
         message: string;
     };
 }
+
+
+export type Amenity = {
+    id: string;
+    name: string;
+    category: "GENERAL" | "MEETING" | "EQUIPMENT";
+    createdAt?: string;
+};

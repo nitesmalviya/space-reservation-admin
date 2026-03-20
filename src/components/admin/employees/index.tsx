@@ -1,9 +1,15 @@
 "use client";
-import { useState } from "react";
-import { Plus, Edit, Power, Trash2 } from "lucide-react";
-import EmployeeModal from "../../employee-modal";
+import { useMemo, useState } from "react";
+import EmployeeModal from "./employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import SearchBox from "@/components/SearchBox";
+import { AllUsersResponse, UpdateUserInput, UserInput } from "@/types/users-type";
+import EmployeeCards from "./employee-card";
+import EmployeeHeader from "./employee-header";
+import TableRow from "./table-row";
+import { getAllUsersAction, removeUserAction, updateUserAction } from "@/utils/graphql/users/actions";
+import { toast } from "sonner";
+
 
 export interface Employee {
   id: string;
@@ -18,95 +24,114 @@ export interface Employee {
 }
 
 interface OrgAdminEmployeesProps {
-  readonly employees: Employee[];
+  readonly employees: AllUsersResponse;
 }
 
 export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
+  const [employeesList, setEmployeesList] = useState<AllUsersResponse>(employees);
+  const [selectedEmployee, setSelectedEmployee] = useState<UserInput | null>(null);
+  const { stats } = employeesList || {};
+  const statsData = {
+    totalEmployees: stats?.totalEmployees || 0,
+    activeEmployees: stats?.activeEmployees || 0,
+    newThisMonth: stats?.newThisMonth || 0
+  }
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [formState, setFormState] = useState<"create" | "update">("create");
-  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
-    null,
-  );
 
   // Confirmation modal state
   const [confirmAction, setConfirmAction] = useState<
     "delete" | "toggle" | null
   >(null);
-  const [empToAct, setEmpToAct] = useState<Employee | null>(null);
 
-  const filteredEmployees = employees.filter(
-    (emp) =>
-      emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      emp.role.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const [empToAct, setEmpToAct] = useState<UserInput | null>(null);
 
-  const handleToggleStatus = (employee: Employee) => {
+  const filteredEmployees = useMemo(() => {
+    const search = searchTerm.toLowerCase();
+
+    if (!Array.isArray(employeesList?.users)) return [];
+
+    return employeesList.users.filter((emp) => {
+      return (
+        emp.name?.toLowerCase().includes(search) ||
+        emp.email?.toLowerCase().includes(search) ||
+        emp.role?.toLowerCase().includes(search)
+      );
+    });
+  }, [employeesList, searchTerm]);
+
+
+  const handleToggleStatus = (employee: UserInput) => {
     setEmpToAct(employee);
     setConfirmAction("toggle");
   };
 
-  const handleDeleteEmployee = (employee: Employee) => {
-    setEmpToAct(employee);
+  const handleDeleteEmployee = (id: string) => {
+    setDeleteId(id);
     setConfirmAction("delete");
   };
 
-  const handleSubmitEmployee = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: wire up add/update API call
-    setShowEmployeeModal(false);
+  const handleEditEmployee = (employee: UserInput) => {
+    setSelectedEmployee(employee);
+    setShowEmployeeModal(true); // open modal
   };
 
-  const handleConfirmAction = () => {
-    if (!empToAct) return;
-    if (confirmAction === "delete") {
-      // TODO: call delete API for empToAct.id
-    } else if (confirmAction === "toggle") {
-      // TODO: call toggle status API for empToAct.id
+  const handleSubmitEmployee = async (newEmployee: UpdateUserInput) => {
+    try {
+      const res = await updateUserAction(newEmployee);
+      debugger
+      if (res?.updateUser?.success) {
+        toast.success(res.updateUser.message);
+        const refreshedList = await getAllUsersAction({});
+        setEmployeesList(refreshedList.data.users); // ✅ important
+      } else {
+        toast.error(res?.updateUser?.message || "Failed to save employee");
+      }
+    } catch (error: any) {
+      toast.error(error?.message || "Something went wrong");
+    } finally {
+      setShowEmployeeModal(false);
     }
-    setConfirmAction(null);
-    setEmpToAct(null);
+  };
+
+  // Confirmation modal handler
+  const handleConfirmAction = async () => {
+    if (confirmAction === "delete" && deleteId) {
+      setLoading(true);
+      try {
+        const res = await removeUserAction({ id: deleteId });
+        debugger
+        if (res.removeUserById.success) {
+          toast.success(res.removeUserById.message);
+          const refreshedList = await getAllUsersAction({});
+          console.log("REFRESHED LIST:", refreshedList);
+          setEmployeesList(refreshedList.data.users);
+        } else {
+          toast.error(res.removeUserById.message || "Failed to delete employee");
+        }
+      } catch (error) {
+        toast.error(error?.message || "Unexpected error occurred");
+      } finally {
+        setLoading(false);
+        setConfirmAction(null);
+        setDeleteId(null);
+      }
+    }
   };
 
   return (
     <div className="p-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-gray-900 mb-1">Employee Management</h1>
-          <p className="text-gray-600 text-sm">
-            Manage your organization's employees
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setFormState("create");
-            setSelectedEmployee(null);
-
-            setShowEmployeeModal(true);
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-        >
-          <Plus className="w-5 h-5" />
-          Add New Employee
-        </button>
-      </div>
+      <EmployeeHeader
+        setShowEmployeeModal={setShowEmployeeModal}
+        setFormState={setFormState}
+        setSelectedEmployee={setSelectedEmployee}
+      />
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Total Employees</p>
-          <p className="text-gray-900 text-xl">45</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Active Employees</p>
-          <p className="text-gray-900 text-xl">42</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">New This Month</p>
-          <p className="text-gray-900 text-xl">3</p>
-        </div>
-      </div>
+      <EmployeeCards statsData={statsData} />
 
       {/* Employee List */}
       <div className="bg-white rounded-lg border border-gray-200">
@@ -148,88 +173,13 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-medium">
-                          {employee.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                        <span className="text-gray-900 text-sm">
-                          {employee.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.email}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${employee.role === "Admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : employee.role === "Manager"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                          }`}
-                      >
-                        {employee.role}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.joinDate}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.bookings}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${employee.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                          }`}
-                      >
-                        {employee.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => {
-                            setFormState("update");
-                            setSelectedEmployee(employee);
-                            setShowEmployeeModal(true);
-                          }}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Employee"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(employee)}
-                          className={`p-1.5 rounded-lg transition-colors ${employee.status === "Active"
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-green-600 hover:bg-green-50"
-                            }`}
-                          title={
-                            employee.status === "Active"
-                              ? "Deactivate"
-                              : "Activate"
-                          }
-                        >
-                          <Power className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEmployee(employee)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <TableRow
+                    key={employee.id}
+                    employee={employee}
+                    handleToggleStatus={handleToggleStatus}
+                    handleDeleteEmployee={handleDeleteEmployee}
+                    handleEditEmployee={handleEditEmployee}
+                  />
                 ))}
               </tbody>
             </table>
@@ -239,11 +189,15 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
         {/*  Employee Modal */}
         {showEmployeeModal && (
           <EmployeeModal
-            showEmployeeModal={showEmployeeModal}
-            setShowEmployeeModal={() => setShowEmployeeModal(false)}
-            handleSubmitEmployee={handleSubmitEmployee}
-            state={formState}
             selectedEmployee={selectedEmployee}
+            onSave={handleSubmitEmployee}
+            loading={loading}
+            isOpen={showEmployeeModal}
+            onClose={() => {
+              setShowEmployeeModal(false);
+              setSelectedEmployee(null);
+            }}
+
           />
         )}
 
@@ -252,34 +206,18 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
           isOpen={confirmAction !== null}
           onClose={() => {
             setConfirmAction(null);
-            setEmpToAct(null);
+            setDeleteId(null);
           }}
           onConfirm={handleConfirmAction}
-          title={
-            confirmAction === "delete"
-              ? "Delete Employee"
-              : empToAct?.status === "Active"
-                ? "Deactivate Employee"
-                : "Activate Employee"
-          }
-          description={
-            confirmAction === "delete"
-              ? `Are you sure you want to delete "${empToAct?.name}"? This action cannot be undone.`
-              : empToAct?.status === "Active"
-                ? `Are you sure you want to deactivate "${empToAct?.name}"? They will lose access.`
-                : `Are you sure you want to activate "${empToAct?.name}"? They will regain access.`
-          }
-          confirmLabel={
-            confirmAction === "delete"
-              ? "Delete"
-              : empToAct?.status === "Active"
-                ? "Deactivate"
-                : "Activate"
-          }
+          title="Delete Employee"
+          description="Are you sure you want to delete this employee? This action cannot be undone."
+          confirmLabel="Delete"
           cancelLabel="Cancel"
-          variant={confirmAction === "delete" ? "danger" : "info"}
+          variant="danger"
         />
       </div>
     </div>
   );
 }
+
+

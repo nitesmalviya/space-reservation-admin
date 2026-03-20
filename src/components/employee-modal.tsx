@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
 export interface EmployeeFormData {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
   role: string;
 }
@@ -17,16 +16,14 @@ interface EmployeeModalProps {
   ) => void;
   readonly state: "create" | "update";
   readonly selectedEmployee?: {
-    firstName?: string;
-    lastName?: string;
+    name?: string;
     email?: string;
     role?: string;
   } | null;
 }
 
 const emptyForm: EmployeeFormData = {
-  firstName: "",
-  lastName: "",
+  name: "",
   email: "",
   role: "User",
 };
@@ -44,8 +41,7 @@ export default function EmployeeModal({
   useEffect(() => {
     if (state === "update" && selectedEmployee) {
       setFormData({
-        firstName: selectedEmployee.firstName ?? "",
-        lastName: selectedEmployee.lastName ?? "",
+        name: selectedEmployee.name ?? "",
         email: selectedEmployee.email ?? "",
         role: selectedEmployee.role ?? "User",
       });
@@ -83,39 +79,21 @@ export default function EmployeeModal({
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
-                htmlFor="emp-first"
+                htmlFor="name"
                 className="block text-gray-700 mb-2 text-sm"
               >
-                First Name *
+                Name *
               </label>
               <input
-                id="emp-first"
+                name="name"
+                id="name"
                 type="text"
-                value={formData.firstName}
+                value={formData.name}
                 onChange={(e) =>
-                  setFormData({ ...formData, firstName: e.target.value })
+                  setFormData({ ...formData, name: e.target.value })
                 }
                 className={inputCls}
-                placeholder="Enter first name"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="emp-last"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                Last Name *
-              </label>
-              <input
-                id="emp-last"
-                type="text"
-                value={formData.lastName}
-                onChange={(e) =>
-                  setFormData({ ...formData, lastName: e.target.value })
-                }
-                className={inputCls}
-                placeholder="Enter last name"
+                placeholder="Enter name"
                 required
               />
             </div>
@@ -123,13 +101,13 @@ export default function EmployeeModal({
 
           <div>
             <label
-              htmlFor="emp-email"
+              htmlFor="email"
               className="block text-gray-700 mb-2 text-sm"
             >
               Email *
             </label>
             <input
-              id="emp-email"
+              id="email"
               type="email"
               value={formData.email}
               onChange={(e) =>
@@ -143,13 +121,14 @@ export default function EmployeeModal({
 
           <div>
             <label
-              htmlFor="emp-role"
+              htmlFor="role"
               className="block text-gray-700 mb-2 text-sm"
             >
               Role *
             </label>
             <select
-              id="emp-role"
+              name="role"
+              id="role"
               value={formData.role}
               onChange={(e) =>
                 setFormData({ ...formData, role: e.target.value })
