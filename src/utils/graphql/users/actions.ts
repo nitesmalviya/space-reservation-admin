@@ -42,7 +42,7 @@ export const removeUserAction = async (
 
 //Update User
 export const updateUserAction = async (
-    variables: UpdateUserInput,
+    variables: UpdateUserInput, id: string | undefined, newEmployee: UpdateUserInput,
 ): Promise<UpdateUserResponse> => {
     const res = await fetchGraphQLMutation<UpdateUserResponse>(
         UPDATE_USER_MUTATION,

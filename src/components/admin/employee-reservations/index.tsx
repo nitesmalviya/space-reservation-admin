@@ -1,53 +1,46 @@
 "use client";
 import { useState } from "react";
 import { Calendar, Clock, MapPin, User, Check, X, Filter } from "lucide-react";
-
-export interface Reservation {
-  id: string;
-  employee: string;
-  email: string;
-  department: string;
-  space: string;
-  spaceType: string;
-  date: string;
-  startTime: string;
-  endTime: string;
-  status: "Pending" | "Approved" | "Rejected";
-  purpose: string;
-  attendees: number;
-}
+import { EmployeeReservationsInput } from "@/types/employee-type";
+import { formatDate, formatSpaceType } from "@/utils/constant";
+import SummaryCards from "./summary-cards";
 
 interface ReservationListProps {
-  readonly reservations: Reservation[];
+  readonly employeeReservations: EmployeeReservationsInput[];
 }
 
-export function OrgAdminReservations({ reservations }: ReservationListProps) {
+export function OrgAdminReservations({ employeeReservations }: ReservationListProps) {
+  console.log(employeeReservations, "employeeReservations");
   const [filterStatus, setFilterStatus] = useState<string>("pending");
 
   const filteredReservations =
     filterStatus === "all"
-      ? reservations
-      : reservations?.filter((r) => r?.status?.toLowerCase() === filterStatus);
+      ? employeeReservations
+      : employeeReservations?.filter((r) => r?.status?.toLowerCase() === filterStatus);
 
-  const pendingCount = reservations?.filter(
+  const pendingCount = employeeReservations?.filter(
     (r) => r?.status === "Pending",
   ).length;
-  const approvedCount = reservations?.filter(
+  const approvedCount = employeeReservations?.filter(
     (r) => r?.status === "Approved",
   ).length;
-  const rejectedCount = reservations?.filter(
+  const rejectedCount = employeeReservations?.filter(
     (r) => r?.status === "Rejected",
   ).length;
 
   const handleApprove = (id: string) => {
     // console.log("Approve reservation:", id);
     // In real app, this would call an API
+    alert("Approved")
   };
 
   const handleReject = (id: string) => {
     // console.log("Reject reservation:", id);
     // In real app, this would call an API
+
   };
+
+  console.log(employeeReservations, "employee Reservations");
 
   return (
     <div className="p-5">
@@ -59,24 +52,12 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Total Requests</p>
-          <p className="text-gray-900 text-xl">{reservations?.length ?? 0}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Pending</p>
-          <p className="text-gray-900 text-xl">{pendingCount ?? 0}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Approved</p>
-          <p className="text-gray-900 text-xl">{approvedCount ?? 0}</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Rejected</p>
-          <p className="text-gray-900 text-xl">{rejectedCount ?? 0}</p>
-        </div>
-      </div>
+      <SummaryCards
+        employeeReservations={employeeReservations}
+        pendingCount={pendingCount ?? 0}
+        approvedCount={approvedCount ?? 0}
+        rejectedCount={rejectedCount ?? 0}
+      />
 
       {/* Reservations List */}
       <div className="bg-white rounded-lg border border-gray-200">
@@ -106,27 +87,26 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
                 <div className="flex-1">
                   <div className="flex items-center gap-2.5 mb-2.5">
                     <div className="w-9 h-9 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-medium">
-                      {reservation?.employee
+                      {reservation?.user.name
                         ?.split(" ")
                         ?.map((n) => n[0])
                         ?.join("")}
                     </div>
                     <div>
                       <h3 className="text-gray-900 text-sm font-medium">
-                        {reservation?.employee}
+                        {reservation?.user?.name}
                       </h3>
                       <p className="text-xs text-gray-500">
-                        {reservation?.department} • {reservation?.email}
+                        {reservation?.user?.email}
                       </p>
                     </div>
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ml-auto ${
-                        reservation?.status === "Pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : reservation.status === "Approved"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs ml-auto ${reservation?.status === "Pending"
+                        ? "bg-yellow-100 text-yellow-700"
+                        : reservation.status === "Approved"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                        }`}
                     >
                       {reservation?.status}
                     </span>
@@ -138,10 +118,10 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
                       <div>
                         <p className="text-xs text-gray-500">Space</p>
                         <p className="text-sm text-gray-900">
-                          {reservation?.space ??"--"}
+                          {reservation?.space.name ?? "--"}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {reservation?.spaceType ??"--"}
+                          {formatSpaceType(reservation?.space.type) ?? "--"}
                         </p>
                       </div>
                     </div>
@@ -151,7 +131,7 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
                       <div>
                         <p className="text-xs text-gray-500">Date</p>
                         <p className="text-sm text-gray-900">
-                          {reservation?.date ??"--"}
+                          {formatDate(reservation?.createdAt ?? "--")}
                         </p>
                       </div>
                     </div>
@@ -161,7 +141,7 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
                       <div>
                         <p className="text-xs text-gray-500">Time</p>
                         <p className="text-sm text-gray-900">
-                          {reservation?.startTime ??"--"} - {reservation?.endTime ??"--"}
+                          {reservation?.startTime ?? "--"} - {reservation?.endTime ?? "--"}
                         </p>
                       </div>
                     </div>
@@ -171,7 +151,7 @@ export function OrgAdminReservations({ reservations }: ReservationListProps) {
                       <div>
                         <p className="text-xs text-gray-500">Attendees</p>
                         <p className="text-sm text-gray-900">
-                          {reservation?.attendees ?? "--"} people
+                          {reservation?.attendeesCount ?? "--"} people
                         </p>
                       </div>
                     </div>
