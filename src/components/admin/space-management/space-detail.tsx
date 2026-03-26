@@ -34,7 +34,6 @@ export default function SpaceDetail({
   handleEditSpace,
   handleToggleStatus,
 }: SpaceDetailProps) {
-  console.log(selectedSpace);
 
   const amenities: Amenity[] = selectedSpace?.amenities || [];
 

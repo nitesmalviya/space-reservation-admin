@@ -107,7 +107,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
         if (res.removeUserById.success) {
           toast.success(res.removeUserById.message);
           const refreshedList = await getAllUsersAction({});
-          console.log("REFRESHED LIST:", refreshedList);
+
           setEmployeesList(refreshedList.data.users);
         } else {
           toast.error(res.removeUserById.message || "Failed to delete employee");

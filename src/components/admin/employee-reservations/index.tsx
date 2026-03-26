@@ -10,7 +10,7 @@ interface ReservationListProps {
 }
 
 export function OrgAdminReservations({ employeeReservations }: ReservationListProps) {
-  console.log(employeeReservations, "employeeReservations");
+  const [loading, setLoading] = useState<boolean>(false);
   const [filterStatus, setFilterStatus] = useState<string>("pending");
 
   const filteredReservations =
@@ -40,7 +40,7 @@ export function OrgAdminReservations({ employeeReservations }: ReservationListPr
 
   };
 
-  console.log(employeeReservations, "employee Reservations");
+
 
   return (
     <div className="p-5">

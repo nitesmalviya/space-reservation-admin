@@ -242,3 +242,9 @@ export const formatDate = (dateString?: string | null) => {
 
   return `${day}-${month}-${year}`;
 };
+
+export const getInitialsName = (name: string) =>
+  name
+    ?.split(" ")
+    .map((n) => n.charAt(0))
+    .join("");

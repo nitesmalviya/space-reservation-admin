@@ -1,8 +1,4 @@
 import { EmployeeReservationsInput } from "@/types/employee-type"
-
-
-
-
 const SummaryCards = ({
     employeeReservations,
     pendingCount,

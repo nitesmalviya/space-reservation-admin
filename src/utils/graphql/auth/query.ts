@@ -2,24 +2,34 @@ import { gql, DocumentNode } from "@apollo/client";
 
 //sign in  mutation
 export const SIGN_IN_MUTATION: DocumentNode = gql`
-  mutation SignIn($email: String!, $password: String!) {
-    signIn(email: $email, password: $password) {
-      accessToken
-      message
-      refreshToken
-      success
-      user {
-        activeStatus
-        createdAt
-        email
+mutation SignIn($email: String!, $password: String!) {
+  signIn(email: $email, password: $password) {
+    accessToken
+    message
+    refreshToken
+    success
+    user {
+      id
+      name
+      orgId
+      email
+      createdAt
+      activeStatus
+      role
+      updatedAt
+      phoneNumber
+      profileImageUrl
+      subId
+      organization {
         id
+        createdAt
+        employeeCount
+        employeesCount
         name
-        phoneNumber
-        profileImageUrl
-        role
       }
     }
   }
+}
 `;
 
 //logout mutation
