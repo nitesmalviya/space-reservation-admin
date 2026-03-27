@@ -1,7 +1,11 @@
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { StatsType } from "@/types/organization-analytics";
 import { TrendingDown, TrendingUp } from "lucide-react";
 
-const OverViewStatsCard = ({ stats }: { stats: OrganizationAnalyticsDataResponse }) => {
+interface OverViewStatsCardProps {
+    stats: StatsType;
+}
+
+const OverViewStatsCard = ({ stats }: OverViewStatsCardProps) => {
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
             <div

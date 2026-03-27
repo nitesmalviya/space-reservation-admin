@@ -1,10 +1,12 @@
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { BookingTrendType } from "@/types/organization-analytics";
 import { Calendar, Clock } from "lucide-react";
 
-const BookingTrends = ({ bookingTrends }: { bookingTrends: OrganizationAnalyticsDataResponse }) => {
+interface BookingTrendsProps {
+    bookingTrends: BookingTrendType;
+}
+
+const BookingTrends = ({ bookingTrends }: BookingTrendsProps) => {
     return (
-
-
         <div className="bg-white rounded-lg border border-gray-200 p-5" >
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-gray-900 text-base font-medium">
@@ -30,10 +32,7 @@ const BookingTrends = ({ bookingTrends }: { bookingTrends: OrganizationAnalytics
                     </div>
                 ))}
             </div>
-        </div >
-
-
-
+        </div>
     );
 };
 

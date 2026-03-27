@@ -35,3 +35,23 @@ export interface OrganizationAnalyticsDataResponse {
         totalHours: string; // ✅ FIX
     }[];
 };
+
+export interface StatsType {
+    totalBookings: number;
+    activeSpaces: number;
+    totalEmployees: number;
+    avgUtilization: number;
+}
+
+
+export interface BookingTrendType {
+    month: string;
+    bookingsCount: number;
+}
+
+
+export interface GetOrganizationAnalyticsInput {
+    orgId: string;
+    startDate?: string;
+    endDate?: string;
+}

@@ -37,14 +37,14 @@ const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDat
                         >
                             <div className="flex items-center gap-3">
                                 <div className="w-10 h-10 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-sm font-medium">
-                                    {getInitialsName(employee.name)}
+                                    {getInitialsName(employee?.employeeName)}
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-900 font-medium">
-                                        {employee.name}
+                                        {employee?.employeeName}
                                     </p>
                                     <p className="text-xs text-gray-500">
-                                        {employee.department}
+                                        {employee?.department}
                                     </p>
                                 </div>
                             </div>
@@ -52,13 +52,13 @@ const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDat
                                 <div className="text-right">
                                     <p className="text-xs text-gray-500">Bookings</p>
                                     <p className="text-sm text-gray-900 font-medium">
-                                        {employee.bookings}
+                                        {employee?.bookingsCount}
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-xs text-gray-500">Hours</p>
                                     <p className="text-sm text-gray-900 font-medium">
-                                        {employee.hours}h
+                                        {employee.totalHours} h
                                     </p>
                                 </div>
                             </div>

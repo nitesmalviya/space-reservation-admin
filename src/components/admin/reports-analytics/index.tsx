@@ -16,85 +16,24 @@ import PeakHours from "./peak-hours";
 import SpaceUtilizationReport from "./space-utilization-report";
 import TopEmployees from "./top-employees";
 
-const OrgAdminAnalytics = ({ organizationAnalytics }: { organizationAnalytics: OrganizationAnalyticsDataResponse }) => {
-  console.log(organizationAnalytics, "organization Analytics");
+interface ReportAnalyticsProps {
+  organizationAnalytics: OrganizationAnalyticsDataResponse;
+}
 
+const OrgAdminAnalytics = ({ organizationAnalytics }: ReportAnalyticsProps) => {
   const {
     stats,
     peakBookingHours,
     spaceUtilizationReport,
     bookingTrends,
+    topEmployees
+
   } = organizationAnalytics;
 
 
-
-  const spaceUtilizationData = [
-    {
-      space: "Conference Room A",
-      bookings: 45,
-      utilization: 85,
-      revenue: 0,
-      hours: 112,
-    },
-    {
-      space: "Meeting Room B",
-      bookings: 38,
-      utilization: 72,
-      revenue: 0,
-      hours: 95,
-    },
-    {
-      space: "Auditorium",
-      bookings: 28,
-      utilization: 68,
-      revenue: 0,
-      hours: 168,
-    },
-    {
-      space: "Training Room",
-      bookings: 25,
-      utilization: 62,
-      revenue: 0,
-      hours: 150,
-    },
-    {
-      space: "Event Space",
-      bookings: 22,
-      utilization: 58,
-      revenue: 0,
-      hours: 132,
-    },
-  ];
-
-  const topEmployees = [
-    { name: "John Doe", department: "HR", bookings: 24, hours: 48 },
-    {
-      name: "Sarah Williams",
-      department: "Engineering",
-      bookings: 22,
-      hours: 44,
-    },
-    { name: "Mike Johnson", department: "Sales", bookings: 20, hours: 60 },
-    { name: "Emily Davis", department: "Marketing", bookings: 18, hours: 36 },
-    { name: "David Chen", department: "IT", bookings: 16, hours: 32 },
-  ];
-
-  const peakHours = [
-    { time: "09:00 AM", bookings: 45 },
-    { time: "10:00 AM", bookings: 68 },
-    { time: "11:00 AM", bookings: 82 },
-    { time: "12:00 PM", bookings: 35 },
-    { time: "01:00 PM", bookings: 42 },
-    { time: "02:00 PM", bookings: 75 },
-    { time: "03:00 PM", bookings: 88 },
-    { time: "04:00 PM", bookings: 62 },
-    { time: "05:00 PM", bookings: 38 },
-  ];
-
-  const maxPeakBookings = Math.max(...peakHours.map((p) => p.bookings));
-
-
-
+  const handleExportReport = (type: string) => {
+    console.log(type, "type");
+  }
   return (
     <div className="p-5">
       <div className="flex items-center justify-between mb-5">

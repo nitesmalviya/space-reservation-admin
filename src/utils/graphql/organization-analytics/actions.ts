@@ -2,13 +2,13 @@
 import { fetchGraphQLMutation, fetchGraphQLQuery } from "..";
 
 import { GET_ORGANIZATION_ANALYTICS_QUERY } from "./query";
-import { OrganizationAnalytics } from "@/types/organization-analytics";
+import { GetOrganizationAnalyticsInput, OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
 // Get all organization analytics action
 
 export const getOrganizationAnalyticsAction = async (
-    variables: any,
-): Promise<OrganizationAnalytics> => {
-    const res = await fetchGraphQLQuery<OrganizationAnalytics>(
+    variables: GetOrganizationAnalyticsInput,
+): Promise<OrganizationAnalyticsDataResponse> => {
+    const res = await fetchGraphQLQuery<OrganizationAnalyticsDataResponse>(
         GET_ORGANIZATION_ANALYTICS_QUERY,
         { ...variables },
     );

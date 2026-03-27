@@ -82,11 +82,10 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
   const handleSubmitEmployee = async (newEmployee: UpdateUserInput) => {
     try {
       const res = await updateUserAction(newEmployee);
-      debugger
       if (res?.updateUser?.success) {
         toast.success(res.updateUser.message);
         const refreshedList = await getAllUsersAction({});
-        setEmployeesList(refreshedList.data.users); // ✅ important
+        setEmployeesList(refreshedList.data.users);
       } else {
         toast.error(res?.updateUser?.message || "Failed to save employee");
       }
