@@ -3,10 +3,7 @@ import { getInitialsName } from "@/utils/constant";
 import { Users } from "lucide-react";
 
 const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDataResponse }) => {
-    console.log(topEmployees, "top Employees");
-
     const handleExportReport = (type: string) => {
-        // console.log(`Exporting ${type} report...`);
         alert(`${type} report exported successfully!`);
     };
 

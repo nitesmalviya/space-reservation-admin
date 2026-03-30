@@ -30,7 +30,6 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
 
   // Location modal state
   const [locationList, setLocationList] = useState<LocationByOrg[]>(locations);
-  console.log(locationList, "location List");
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedLocation, setSelectedLocation] = useState<LocationByOrg | null>(
@@ -60,14 +59,12 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
       try {
         setLoading(true);
         const res = await createLocationAction(newLocation);
-        debugger
         if (res?.createLocation?.success) {
           toast.success(res.createLocation.message);
           const updated = await getLocationsByOrgAction({
 
           });
           setLocationList(updated.locationsByOrg.locations);
-          console.log(updated, "UPDATED RESPONSE");
           setModalOpen(false);
         } else {
           toast.error(res?.createLocation?.message || "Failed to create location");

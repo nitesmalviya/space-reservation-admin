@@ -1,13 +1,7 @@
 
 "use client"
 import {
-  Download,
-  TrendingUp,
-  TrendingDown,
-  Calendar,
-  Users,
-  MapPin,
-  Clock,
+  Download
 } from "lucide-react";
 import OverviewStatsCard from "./overview-statscard";
 import BookingTrends from "./booking-trends";
@@ -33,13 +27,11 @@ const OrgAdminAnalytics = ({ organizationAnalytics }: ReportAnalyticsProps) => {
 
 
   const handleExportReport = async (type: ExportFormat) => {
-    debugger
     const url = await exportOrganizationAnalyticsAction({
       format: type,
       orgId: "b51cc444-81ab-4509-9e2d-69a2e0b2e688",
       filter: null,
     });
-    console.log(url, "res");
     if (url) {
       const link = document.createElement("a");
       link.href = url;

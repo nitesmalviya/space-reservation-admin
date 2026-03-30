@@ -3,10 +3,9 @@ import { MapPin } from "lucide-react";
 
 const SpaceUtilizationReport = ({ spaceUtilizationReport }: { spaceUtilizationReport: OrganizationAnalyticsDataResponse }) => {
     const handleExportReport = (type: string) => {
-        // console.log(`Exporting ${type} report...`);
         alert(`${type} report exported successfully!`);
     };
-    console.log(spaceUtilizationReport, "space Utilization Report");
+
     return (
         <div className="bg-white rounded-lg border border-gray-200 mb-3">
             <div className="p-4 border-b border-gray-200">

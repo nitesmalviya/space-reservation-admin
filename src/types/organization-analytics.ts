@@ -1,4 +1,5 @@
 export interface OrganizationAnalyticsDataResponse {
+    getOrganizationAnalytics(getOrganizationAnalytics: any): unknown;
     avgUtilization: string;
     totalEmployees: string;
     activeSpaces: string;

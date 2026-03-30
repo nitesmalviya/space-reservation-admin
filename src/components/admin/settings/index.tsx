@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Save, Bell, Mail, Shield, Globe, Clock, User } from 'lucide-react';
 
-export function OrgAdminSettings() {
+const OrgAdminSettings = ({ notificationSettings }: { notificationSettings: any }) => {
   const [settings, setSettings] = useState({
     // Notification Settings
     emailNotifications: true,
@@ -31,7 +31,6 @@ export function OrgAdminSettings() {
 
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    // console.log('Saving settings:', settings);
     alert('Settings saved successfully!');
   };
 
@@ -40,6 +39,8 @@ export function OrgAdminSettings() {
 
     }
   };
+
+  console.log(notificationSettings, "notification Settings");
 
   return (
     <div className="p-5">
@@ -325,3 +326,5 @@ export function OrgAdminSettings() {
     </div>
   );
 }
+
+export default OrgAdminSettings;

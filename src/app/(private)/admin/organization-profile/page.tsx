@@ -1,6 +1,5 @@
-import { Location, OrgAdminProfile } from "@/components/admin/organization-profile";
+import { OrgAdminProfile } from "@/components/admin/organization-profile";
 import { getLocationsByOrgAction } from "@/utils/graphql/location/actions";
-
 
 
 const AdminOrganizationProfilePage = async () => {
@@ -9,7 +8,7 @@ const AdminOrganizationProfilePage = async () => {
     limit: 10,
   });
   const locations = res?.locationsByOrg?.locations;
-  console.log(locations);
+
   return <OrgAdminProfile locations={locations} />;
 }
 
