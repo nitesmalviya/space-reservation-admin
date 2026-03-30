@@ -35,3 +35,10 @@ query GetOrganizationAnalytics($orgId: String) {
   }
 }
   `;
+
+
+// Export Organization Analytics Query
+export const EXPORT_ORGANIZATION_ANALYTICS_QUERY: DocumentNode = gql`
+  query Query($format: String!, $filter: ExportFilter, $orgId: String) {
+  exportOrganizationAnalytics(format: $format, filter: $filter, orgId: $orgId)
+}`;

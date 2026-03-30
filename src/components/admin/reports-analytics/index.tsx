@@ -11,10 +11,11 @@ import {
 } from "lucide-react";
 import OverviewStatsCard from "./overview-statscard";
 import BookingTrends from "./booking-trends";
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { ExportFormat, OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
 import PeakHours from "./peak-hours";
 import SpaceUtilizationReport from "./space-utilization-report";
 import TopEmployees from "./top-employees";
+import { exportOrganizationAnalyticsAction } from "@/utils/graphql/organization-analytics/actions";
 
 interface ReportAnalyticsProps {
   organizationAnalytics: OrganizationAnalyticsDataResponse;
@@ -31,9 +32,24 @@ const OrgAdminAnalytics = ({ organizationAnalytics }: ReportAnalyticsProps) => {
   } = organizationAnalytics;
 
 
-  const handleExportReport = (type: string) => {
-    console.log(type, "type");
+  const handleExportReport = async (type: ExportFormat) => {
+    debugger
+    const url = await exportOrganizationAnalyticsAction({
+      format: type,
+      orgId: "b51cc444-81ab-4509-9e2d-69a2e0b2e688",
+      filter: null,
+    });
+    console.log(url, "res");
+    if (url) {
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `organization-analytics-${new Date().toISOString()}.${type}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   }
+
   return (
     <div className="p-5">
       <div className="flex items-center justify-between mb-5">
@@ -45,14 +61,14 @@ const OrgAdminAnalytics = ({ organizationAnalytics }: ReportAnalyticsProps) => {
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleExportReport("PDF")}
+            onClick={() => handleExportReport("pdf")}
             className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm"
           >
             <Download className="w-4 h-4" />
             Export PDF
           </button>
           <button
-            onClick={() => handleExportReport("Excel")}
+            onClick={() => handleExportReport("excel")}
             className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
           >
             <Download className="w-4 h-4" />

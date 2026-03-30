@@ -55,3 +55,22 @@ export interface GetOrganizationAnalyticsInput {
     startDate?: string;
     endDate?: string;
 }
+
+
+
+
+export type ExportFormat = 'pdf' | 'excel';
+
+export interface ExportFilter {
+    startDate?: string;
+    endDate?: string;
+    employee?: string;
+    space?: string;
+    status?: string;
+}
+
+export interface GetExportOrganizationAnalyticsInput {
+    orgId?: string;
+    format: ExportFormat;
+    filter?: ExportFilter | null;
+}
