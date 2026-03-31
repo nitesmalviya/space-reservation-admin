@@ -18,13 +18,18 @@ export interface Booking {
 }
 
 interface DashboardData {
- readonly recentOrganizations: Organization[];
- readonly recentBookings: Booking[];
+  readonly recentOrganizations: Organization[];
+  readonly recentBookings: Booking[];
 }
-export function SuperAdminDashboard({
+
+const SuperAdminDashboard = ({
   recentOrganizations,
   recentBookings,
-}: DashboardData) {
+
+}: DashboardData) => {
+
+
+
   const summaryData: SummaryCardProps[] = [
     {
       title: "Total Organizations",
@@ -93,11 +98,10 @@ export function SuperAdminDashboard({
                   </p>
                 </div>
                 <span
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    org.status === "Active"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-sm ${org.status === "Active"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                    }`}
                 >
                   {org.status}
                 </span>
@@ -133,3 +137,6 @@ export function SuperAdminDashboard({
     </div>
   );
 }
+
+
+export default SuperAdminDashboard;

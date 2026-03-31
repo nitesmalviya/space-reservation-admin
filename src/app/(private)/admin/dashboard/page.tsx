@@ -3,6 +3,7 @@ import { getAllAdminDashboardAction } from "@/utils/graphql/adminDashboard/actio
 
 const DashboardPage = async () => {
   const res = await getAllAdminDashboardAction({});
+
   const overviewStatsData =
     res?.adminDashboard?.dashboard?.overviewStats ?? {
       totalEmployees: 0,

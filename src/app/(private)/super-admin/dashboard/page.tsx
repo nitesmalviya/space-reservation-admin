@@ -1,6 +1,6 @@
-import { Booking, Organization, SuperAdminDashboard } from "@/components/super-admin/dashboard";
-
-
+import { Booking, Organization } from "@/components/super-admin/dashboard";
+import SuperAdminDashboard from "@/components/super-admin/dashboard";
+import { getAllSuperAdminDashboardAction } from "@/utils/graphql/superAdminDashboard/actions";
 
 const recentOrganizations: Organization[] = [
   {
@@ -55,6 +55,16 @@ const recentBookings: Booking[] = [
     time: "3:00 PM",
   },
 ];
-export default function SuperAdminDashboardPage() {
-    return <SuperAdminDashboard recentOrganizations={recentOrganizations} recentBookings={recentBookings} />;
+
+const SuperAdminDashboardPage = async () => {
+  const res = await getAllSuperAdminDashboardAction();
+  const dashboardData = res?.superAdminDashboard?.dashboard;
+
+  return (
+    <SuperAdminDashboard
+      recentOrganizations={recentOrganizations}
+      recentBookings={recentBookings}
+    />)
 }
+
+export default SuperAdminDashboardPage;
