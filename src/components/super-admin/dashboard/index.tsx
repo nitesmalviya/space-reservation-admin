@@ -1,39 +1,29 @@
 "use client";
-import { SummaryCard, SummaryCardProps } from "@/components/SummaryCard";
+import { SummaryCard, SummaryCardProps } from "./SummaryCard";
+import { SuperAdminDashboardResponse } from "@/types/dashboard/super-admin";
 import { Building2, Users, Calendar, CalendarCheck } from "lucide-react";
+import RecentOrganizations from "./RecentOrganizations";
+import UpcomingBookings from "./UpcomingBookings";
 
-
-export interface Organization {
-  name: string;
-  employees: number;
-  industry: string;
-  status: string;
-}
-
-export interface Booking {
-  space: string;
-  organization: string;
-  date: string;
-  time: string;
-}
-
-interface DashboardData {
-  readonly recentOrganizations: Organization[];
-  readonly recentBookings: Booking[];
+interface DashboardDataProps {
+  dashboardData: SuperAdminDashboardResponse;
 }
 
 const SuperAdminDashboard = ({
-  recentOrganizations,
-  recentBookings,
+  dashboardData
+}: DashboardDataProps) => {
 
-}: DashboardData) => {
-
-
+  const {
+    totalOrganizations,
+    totalEmployees,
+    totalBookings,
+    upcomingBookings
+  } = dashboardData?.overviewStats || {};
 
   const summaryData: SummaryCardProps[] = [
     {
       title: "Total Organizations",
-      value: "48",
+      value: totalOrganizations?.toString(),
       change: "+12%",
       trend: "up" as const,
       icon: Building2,
@@ -41,7 +31,7 @@ const SuperAdminDashboard = ({
     },
     {
       title: "Total Employees",
-      value: "1,247",
+      value: totalEmployees?.toString(),
       change: "+8%",
       trend: "up" as const,
       icon: Users,
@@ -49,7 +39,7 @@ const SuperAdminDashboard = ({
     },
     {
       title: "Total Bookings",
-      value: "3,892",
+      value: totalBookings?.toString(),
       change: "+23%",
       trend: "up" as const,
       icon: Calendar,
@@ -57,7 +47,7 @@ const SuperAdminDashboard = ({
     },
     {
       title: "Upcoming Bookings",
-      value: "156",
+      value: upcomingBookings?.toString(),
       change: "-5%",
       trend: "down" as const,
       icon: CalendarCheck,
@@ -77,62 +67,15 @@ const SuperAdminDashboard = ({
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {summaryData.map((data, index) => (
-          <SummaryCard key={index} {...data as SummaryCardProps} />
+          <SummaryCard key={index} {...data} />
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Recent Organizations */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-gray-900 mb-4">Recent Organizations</h2>
-          <div className="space-y-4">
-            {recentOrganizations.map((org, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <p className="text-gray-900">{org.name}</p>
-                  <p className="text-sm text-gray-500">
-                    {org.employees} employees • {org.industry}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-sm ${org.status === "Active"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-yellow-100 text-yellow-700"
-                    }`}
-                >
-                  {org.status}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
+        <RecentOrganizations recentOrganizations={dashboardData?.recentOrganizations || []} />
         {/* Upcoming Bookings */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h2 className="text-gray-900 mb-4">Upcoming Bookings</h2>
-          <div className="space-y-4">
-            {recentBookings.map((booking, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-              >
-                <div>
-                  <p className="text-gray-900">{booking.space}</p>
-                  <p className="text-sm text-gray-500">
-                    {booking.organization}
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm text-gray-900">{booking.date}</p>
-                  <p className="text-sm text-gray-500">{booking.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <UpcomingBookings upcomingBookings={dashboardData?.upcomingBookings || []} />
       </div>
     </div>
   );

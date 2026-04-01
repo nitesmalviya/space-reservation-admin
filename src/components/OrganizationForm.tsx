@@ -96,7 +96,7 @@ export function OrganizationForm({
 
   return (
     <div className="fixed inset-0 bg-[rgba(0,0,0,0.4)] bg-opacity-50 flex items-center justify-center z-50 p-4 min-h-screen">
-      <div className="max-w-3xl bg-white rounded-lg border border-gray-200 p-5 w-full">
+      <div className="max-w-3xl bg-white rounded-lg border border-gray-200 p-5 w-full overflow-y-auto h-full">
         <div className="flex items-center justify-between mb-5 w-full">
           <div>
             <h1 className="text-gray-900 mb-1 ">

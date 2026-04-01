@@ -1,123 +1,38 @@
 "use client";
+
 import { useState } from "react";
 import { Plus, Edit, Shield, Power } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import SearchBox from "@/components/SearchBox";
 import EmployeeModal from "@/components/employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { AllUsersResponse, UserInput, UsersType } from "@/types/users-type";
+import { toast } from "react-toastify";
 
-interface User {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  organization: string;
-  role: string;
-  status: "Active" | "Inactive";
+interface UsersProps {
+  readonly usersData: AllUsersResponse;
 }
 
-export function Users() {
+export function Users({ usersData }: UsersProps) {
+  const [usersList, setUsersList] = useState<UsersType[]>(usersData?.users || []);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   // Employee Modal state
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "update">("create");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UsersType | null>(null);
 
   // Confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [userToToggle, setUserToToggle] = useState<User | null>(null);
+  const [userToToggle, setUserToToggle] = useState<UsersType | null>(null);
 
-  const users: User[] = [
-    {
-      id: "1",
-      name: "John Smith",
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@bitcot.com",
-      organization: "Tech Solutions Inc.",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      firstName: "Sarah",
-      lastName: "Johnson",
-      email: "sarah.j@globalmarketing.com",
-      organization: "Global Marketing Co.",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "3",
-      name: "Michael Chen",
-      firstName: "Michael",
-      lastName: "Chen",
-      email: "mchen@financepartners.com",
-      organization: "Finance Partners LLC",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "4",
-      name: "Emily Davis",
-      firstName: "Emily",
-      lastName: "Davis",
-      email: "emily@creativestudios.com",
-      organization: "Creative Studios",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "5",
-      name: "Alex Martinez",
-      firstName: "Alex",
-      lastName: "Martinez",
-      email: "alex.m@bitcot.com",
-      organization: "Tech Solutions Inc.",
-      role: "User",
-      status: "Active",
-    },
-    {
-      id: "6",
-      name: "Jessica Lee",
-      firstName: "Jessica",
-      lastName: "Lee",
-      email: "jlee@globalmarketing.com",
-      organization: "Global Marketing Co.",
-      role: "Manager",
-      status: "Active",
-    },
-    {
-      id: "7",
-      name: "David Brown",
-      firstName: "David",
-      lastName: "Brown",
-      email: "dbrown@financepartners.com",
-      organization: "Finance Partners LLC",
-      role: "User",
-      status: "Inactive",
-    },
-    {
-      id: "8",
-      name: "Lisa Wang",
-      firstName: "Lisa",
-      lastName: "Wang",
-      email: "lwang@creativestudios.com",
-      organization: "Creative Studios",
-      role: "User",
-      status: "Active",
-    },
-  ];
 
-  const filteredUsers = users.filter(
+
+  const filteredUsers = usersList.filter(
     (user) =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.role.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -136,6 +51,19 @@ export function Users() {
   const handleSubmitEmployee = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: call add/update user API
+    try {
+      if (selectedUser) {
+
+      } else {
+        // const res = await createUserAction(selectedUser);
+        // if (res.success) {
+        //   setUsersList((prev) => [...prev, res.user]);
+        //   toast.success(res.message);
+        // }
+      }
+    } catch (error) {
+
+    }
     setShowEmployeeModal(false);
   };
 
@@ -215,30 +143,28 @@ export function Users() {
                     {user.email}
                   </td>
                   <td className="px-5 py-3 text-gray-600 text-sm">
-                    {user.organization}
+                    {user?.organization?.name}
                   </td>
                   <td className="px-5 py-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.role === "Admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : user.role === "Manager"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs ${user.role === "Admin"
+                        ? "bg-purple-100 text-purple-700"
+                        : user.role === "Manager"
+                          ? "bg-blue-100 text-blue-700"
+                          : "bg-gray-100 text-gray-700"
+                        }`}
                     >
                       {user.role}
                     </span>
                   </td>
                   <td className="px-5 py-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
+                      className={`px-2 py-1 rounded-full text-xs ${user.activeStatus === "Active"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                        }`}
                     >
-                      {user.status}
+                      {user.activeStatus}
                     </span>
                   </td>
                   <td className="px-5 py-3">
@@ -252,11 +178,10 @@ export function Users() {
                       </button>
                       <button
                         onClick={() => handleRequestToggle(user)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          user.status === "Active"
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-green-600 hover:bg-green-50"
-                        }`}
+                        className={`p-1.5 rounded-lg transition-colors ${user.status === "Active"
+                          ? "text-red-600 hover:bg-red-50"
+                          : "text-green-600 hover:bg-green-50"
+                          }`}
                         title={
                           user.status === "Active" ? "Deactivate" : "Activate"
                         }
@@ -277,7 +202,10 @@ export function Users() {
             </tbody>
           </table>
         </div>
-        {/* <Pagination currentPage={currentPage} totalPages={7} onPageChange={(page:number) => setCurrentPage(page)} /> */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={7}
+          onPageChange={(page: number) => setCurrentPage(page)} />
       </div>
 
       {/* Add / Edit Employee Modal */}

@@ -27,6 +27,23 @@ export interface UpcomingBooking {
   status: string;
 }
 
+export interface RecentOrganization {
+  id: string;
+  name: string;
+  employees: number;
+  industry: string;
+  status: "Active" | "Inactive";
+}
+
+export interface UpcomingBooking {
+  space: string;
+  organization: string;
+  date: string;
+  time: string;
+}
+
+
+
 export interface Dashboard {
   overviewStats: OverviewStats;
   recentOrganizations: RecentOrganization[];
@@ -34,9 +51,21 @@ export interface Dashboard {
 }
 
 export interface SuperAdminDashboardResponse {
+  overviewStats: {
+    totalOrganizations: number;
+    totalEmployees: number;
+    totalBookings: number;
+    upcomingBookings: number;
+  };
+  recentOrganizations: RecentOrganization[];
+  upcomingBookings: UpcomingBooking[];
+  totalBookings: any;
+  totalEmployees: any;
+  totalOrganizations: any;
   superAdminDashboard: {
     success: boolean;
     message: string;
     dashboard: Dashboard;
   };
+
 }

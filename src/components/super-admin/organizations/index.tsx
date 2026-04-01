@@ -11,17 +11,20 @@ import {
 } from "@/types/organization";
 import {
   createOrganization,
+  getAllOrganizations,
   removeOrganizationById,
   updateOrganizationById,
 } from "@/store/actions/organization-action";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import OrganizationTable from "./OrganizationTable";
 
 interface OrganizationsProps {
   readonly organizationsData: AllOrganizationsData | null;
 }
 
 export function Organizations({ organizationsData }: OrganizationsProps) {
+  const [organizationsDataList, setOrganizationsDataList] = useState<AllOrganizationsData | null>(organizationsData);
   const [showForm, setShowForm] = useState(false);
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,7 +32,7 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
   const [loading, setLoading] = useState(false);
   const [showDltModel, setShowDltModel] = useState(false);
 
-  const filteredOrgs = organizationsData?.organizations.filter(
+  const filteredOrgs = organizationsDataList?.organizations.filter(
     (org) =>
       org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,18 +74,24 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
 
     try {
       const res = await createOrganization(data);
+      debugger
       if (res?.success) {
         toast.success(res?.message);
+
         setShowForm(false);
       } else {
         toast.error(res?.message);
       }
+      setShowForm(false);
+      const refreshedList = await getAllOrganizations({ limit: 10, page: 1, search: "" });
+      setOrganizationsDataList(refreshedList?.data as any);
     } catch (err: any) {
       toast.error(err?.message || "something went wrong!");
     } finally {
       setLoading(false);
     }
   };
+
   //update org
   const handleUpdateOrg = async (data: UpdateOrganizationInput) => {
     setLoading(true);
@@ -147,84 +156,13 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
             placeholder="Search organizations..."
           />
         </div>
+        <OrganizationTable
+          filteredOrgs={filteredOrgs ?? []}
+          handleView={handleView}
+          handleEdit={handleEdit}
+          openDltCnfrModel={openDltCnfrModel}
+        />
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Organization Name
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Primary Admin
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Industry
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Location
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Employees
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Status
-                </th>
-                <th className="px-5 py-3 text-left text-gray-700 text-xs font-medium">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {filteredOrgs?.map((org) => (
-                <tr key={org.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3 text-gray-900 text-sm">
-                    {org.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.primaryAdmin.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.industry}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.location.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.employeeCount}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-                      {org.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleView(org)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(org)}
-                        className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        onClick={() => openDltCnfrModel(org)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
         {showForm && (
           <OrganizationForm
             organization={editingOrg}

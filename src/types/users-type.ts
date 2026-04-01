@@ -1,21 +1,29 @@
 import { ReactNode } from "react";
 
+export interface UsersType {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  activeStatus: "ACTIVE" | "INACTIVE";
+  organization: {
+    name: string;
+  }
+}
 export interface UserInput {
+  organization: string;
   bookings: string;
   id: string;
   name: string;
   email: string;
   role: string;
   createdAt: string;
-  activeStatus: boolean;
-  // optional (not always returned)
+  activeStatus: "ACTIVE" | "INACTIVE";
   orgId?: string;
   phoneNumber?: string | null;
   profileImageUrl?: string | null;
   subId?: string | null;
   updatedAt?: string;
-
-
 }
 export interface UserStats {
   activeEmployees: number;
@@ -32,6 +40,7 @@ export interface AllUsersResponse {
   totalPages: number;
   stats: UserStats;
   users: UserInput[];
+  orgId: string;
 }
 
 

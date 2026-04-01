@@ -21,6 +21,9 @@ query Users($searchFilter: SearchFilterInput) {
       email
       createdAt
       activeStatus
+      organization {
+        name
+      }
     }
   }
 }

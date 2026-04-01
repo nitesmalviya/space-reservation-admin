@@ -64,6 +64,7 @@ const SuperAdminDashboardPage = async () => {
     <SuperAdminDashboard
       recentOrganizations={recentOrganizations}
       recentBookings={recentBookings}
+      dashboardData={dashboardData}
     />)
 }
 
