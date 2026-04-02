@@ -1,88 +1,33 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Plus, Edit, Search, MapPin, Users } from "lucide-react";
 import SearchBox from "@/components/SearchBox";
 import NewSpaceModal from "@/components/space-modal";
+import { Space } from "@/types/spaces-type";
+import Page from "@/app/(private)/admin/booking-rules/page";
+import PageHeading from "@/components/ui/page-heading";
 
-interface Space {
-  id: string;
-  name: string;
-  organization: string;
-  capacity: number;
-  amenities: string[];
-  location: string;
-  status: string;
+interface SpaceDataProps {
+  spaceData: Space[];
 }
 
-export function Spaces() {
+export function Spaces({ spaceData }: SpaceDataProps) {
+  const [spaceDataList, setSpaceDataList] = useState<Space[]>(spaceData);
+  console.log("space Data", spaceData);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
 
-  const spaces: Space[] = [
-    {
-      id: "1",
-      name: "Conference Room A",
-      organization: "Tech Solutions Inc.",
-      capacity: 12,
-      amenities: ["Projector", "Whiteboard", "Video Conferencing"],
-      location: "Floor 3",
-      status: "Available",
-    },
-    {
-      id: "2",
-      name: "Meeting Room B",
-      organization: "Global Marketing Co.",
-      capacity: 8,
-      amenities: ["TV Screen", "Whiteboard"],
-      location: "Floor 2",
-      status: "Available",
-    },
-    {
-      id: "3",
-      name: "Boardroom",
-      organization: "Finance Partners LLC",
-      capacity: 20,
-      amenities: ["Projector", "Video Conferencing", "Phone"],
-      location: "Floor 5",
-      status: "Available",
-    },
-    {
-      id: "4",
-      name: "Conference Room C",
-      organization: "Creative Studios",
-      capacity: 10,
-      amenities: ["TV Screen", "Whiteboard", "Sound System"],
-      location: "Floor 3",
-      status: "Booked",
-    },
-    {
-      id: "5",
-      name: "Small Meeting Room",
-      organization: "Tech Solutions Inc.",
-      capacity: 4,
-      amenities: ["Whiteboard"],
-      location: "Floor 2",
-      status: "Available",
-    },
-    {
-      id: "6",
-      name: "Training Room",
-      organization: "Healthcare Group",
-      capacity: 30,
-      amenities: ["Projector", "Whiteboard", "Sound System"],
-      location: "Floor 4",
-      status: "Available",
-    },
-  ];
+  const filteredSpaces = useMemo(() => {
+    return spaceDataList.filter(
+      (space) =>
+        space.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        space.building?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        space.location?.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [spaceDataList, searchTerm]);
 
-  const filteredSpaces = spaces.filter(
-    (space) =>
-      space.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      space.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      space.location.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
 
   const handleOpenAdd = () => {
     setSelectedSpace(null);
@@ -105,13 +50,8 @@ export function Spaces() {
 
   return (
     <div className="p-5">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-gray-900 mb-1">Space Management</h1>
-          <p className="text-gray-600 text-sm">
-            Manage workspace rooms and facilities
-          </p>
-        </div>
+
+      <PageHeading title="Space Management" description="Manage workspace rooms and facilities" action={
         <button
           onClick={handleOpenAdd}
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
@@ -119,7 +59,7 @@ export function Spaces() {
           <Plus className="w-5 h-5" />
           Add New Space
         </button>
-      </div>
+      } />
 
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">
@@ -139,17 +79,16 @@ export function Spaces() {
               <div className="flex items-start justify-between mb-3">
                 <h3 className="text-gray-900 text-base">{space.name}</h3>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    space.status === "Available"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-orange-100 text-orange-700"
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs ${space.status === "Available"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-orange-100 text-orange-700"
+                    }`}
                 >
                   {space.status}
                 </span>
               </div>
 
-              <p className="text-gray-600 mb-3 text-sm">{space.organization}</p>
+              <p className="text-gray-600 mb-3 text-sm">{space.building}</p>
 
               <div className="space-y-2 mb-3">
                 <div className="flex items-center gap-2 text-gray-600">
@@ -160,19 +99,19 @@ export function Spaces() {
                 </div>
                 <div className="flex items-center gap-2 text-gray-600">
                   <MapPin className="w-4 h-4" />
-                  <span className="text-sm">{space.location}</span>
+                  <span className="text-sm">{space.location?.name}</span>
                 </div>
               </div>
 
               <div className="mb-3">
                 <p className="text-xs text-gray-500 mb-2">Amenities:</p>
                 <div className="flex flex-wrap gap-1.5">
-                  {space.amenities.map((amenity, idx) => (
+                  {space.amenities?.map((amenity) => (
                     <span
-                      key={idx}
+                      key={amenity.id}
                       className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
                     >
-                      {amenity}
+                      {amenity.name}
                     </span>
                   ))}
                 </div>
@@ -201,13 +140,13 @@ export function Spaces() {
           selectedSpace={
             selectedSpace
               ? {
-                  name: selectedSpace.name,
-                  type: undefined,
-                  capacity: selectedSpace.capacity,
-                  location: { floor: selectedSpace.location },
-                  availability: undefined,
-                  amenities: { general: selectedSpace.amenities },
-                }
+                name: selectedSpace.name,
+                type: undefined,
+                capacity: selectedSpace.capacity,
+                location: { floor: selectedSpace.location },
+                availability: undefined,
+                amenities: { general: selectedSpace.amenities },
+              }
               : null
           }
         />

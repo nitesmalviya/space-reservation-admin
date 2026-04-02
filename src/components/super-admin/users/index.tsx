@@ -8,6 +8,8 @@ import EmployeeModal from "@/components/employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { AllUsersResponse, UserInput, UsersType } from "@/types/users-type";
 import { toast } from "react-toastify";
+import Page from "@/app/(private)/admin/booking-rules/page";
+import PageHeading from "@/components/ui/page-heading";
 
 interface UsersProps {
   readonly usersData: AllUsersResponse;
@@ -84,21 +86,19 @@ export function Users({ usersData }: UsersProps) {
 
   return (
     <div className="p-5">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-gray-900 mb-1">User Management</h1>
-          <p className="text-gray-600 text-sm">
-            Manage employee accounts and permissions
-          </p>
-        </div>
-        <button
-          onClick={handleOpenAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-        >
-          <Plus className="w-5 h-5" />
-          Add Employee
-        </button>
-      </div>
+
+      <PageHeading
+        title="User Management"
+        description="Manage employee accounts and permissions"
+        action={
+          <button
+            onClick={handleOpenAdd}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+          >
+            <Plus className="w-5 h-5" />
+            Add Employee
+          </button>
+        } />
 
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">

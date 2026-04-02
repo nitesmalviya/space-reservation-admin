@@ -1,5 +1,16 @@
-import { Analytics } from "@/components/super-admin/analytics";
+import Analytics  from "@/components/super-admin/analytics";
+import { getSuperAdminAnalyticsAction } from "@/utils/graphql/super-admin-analytics/actions";
 
-export default function AnalyticsPage() {
-    return <Analytics />;
-}
+const AnalyticsPage = async  () => {
+    const res = await getSuperAdminAnalyticsAction();
+    const analyticsData = res.getSuperAdminAnalytics;
+    const { bookingsByOrganization, bookingsBySpace, feedbackTrends, summaryStats } = analyticsData;
+    return <Analytics 
+    bookingsByOrganization={bookingsByOrganization}
+    bookingsBySpace={bookingsBySpace}
+    feedbackTrends={feedbackTrends}
+    summaryStats={summaryStats}
+    />;
+};
+
+export default AnalyticsPage;

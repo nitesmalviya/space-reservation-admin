@@ -1,5 +1,4 @@
 import { X } from "lucide-react";
-import { spaceTypes } from "./admin/space-management";
 import { useState, useEffect } from "react";
 
 export interface SpaceFormData {
@@ -40,6 +39,16 @@ interface NewSpaceFormProps {
     };
   } | null;
 }
+
+export const spaceTypes = [
+  { label: "Meeting Room", value: "MEETING_ROOM" },
+  { label: "Conference Room", value: "CONFERENCE_ROOM" },
+  { label: "Desk", value: "DESK" },
+  { label: "Cabin", value: "CABIN" },
+  { label: "Auditorium", value: "AUDITORIUM" },
+  { label: "Training Room", value: "TRAINING_ROOM" },
+  { label: "Event Space", value: "EVENT_SPACE" },
+];
 
 export const equipmentList = [
   "Extra Chairs",

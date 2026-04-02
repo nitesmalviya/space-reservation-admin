@@ -42,23 +42,23 @@ export const SearchBox: React.FC<SearchBoxProps> = ({
 
   return (
     <div className={` ${className}`}>
-   
+
       {/* Clear Button */}
 
-     
-      
+
+
       <div className="relative w-full">
-      {clearable && value && (
-        <button
-          type="button"
-          onClick={handleClear}
-          aria-label="Clear search"
-          tabIndex={-1}
-          className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
-        >
-          <X className="w-3.5 h-3.5" />
-        </button>
-      )}
+        {clearable && value && (
+          <button
+            type="button"
+            onClick={handleClear}
+            aria-label="Clear search"
+            tabIndex={-1}
+            className="absolute right-3 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-gray-600 rounded transition-colors"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
         <input
           ref={inputRef}

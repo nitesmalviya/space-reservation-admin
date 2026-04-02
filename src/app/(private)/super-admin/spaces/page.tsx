@@ -1,5 +1,10 @@
+import { getAllSpaceAction } from "@/utils/graphql/spaces/actions";
 import { Spaces } from "@/components/super-admin/spaces";
 
-export default function SpacesPage() {
-    return <Spaces />;
+const SpacesPage = async () => {
+    const res = await getAllSpaceAction({})
+    const spaceData = res?.spaces?.items
+    return <Spaces spaceData={spaceData} />;
 }
+
+export default SpacesPage;

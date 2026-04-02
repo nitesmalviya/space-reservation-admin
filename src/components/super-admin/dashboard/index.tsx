@@ -4,6 +4,7 @@ import { SuperAdminDashboardResponse } from "@/types/dashboard/super-admin";
 import { Building2, Users, Calendar, CalendarCheck } from "lucide-react";
 import RecentOrganizations from "./RecentOrganizations";
 import UpcomingBookings from "./UpcomingBookings";
+import PageHeading from "@/components/ui/page-heading";
 
 interface DashboardDataProps {
   dashboardData: SuperAdminDashboardResponse;
@@ -57,13 +58,7 @@ const SuperAdminDashboard = ({
 
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Super Admin Dashboard</h1>
-        <p className="text-gray-600 text-sm">
-          Welcome back! Here's what's happening today.
-        </p>
-      </div>
-
+      <PageHeading title="Super Admin Dashboard" description="Welcome back! Here's what's happening today." />
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
         {summaryData.map((data, index) => (

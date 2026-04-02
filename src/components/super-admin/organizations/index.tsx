@@ -18,6 +18,7 @@ import {
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import OrganizationTable from "./OrganizationTable";
+import PageHeading from "@/components/ui/page-heading";
 
 interface OrganizationsProps {
   readonly organizationsData: AllOrganizationsData | null;
@@ -132,21 +133,19 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
 
   return (
     <div className="p-5">
-      <div className="flex items-center justify-between mb-5">
-        <div>
-          <h1 className="text-gray-900 mb-1">Organization Management</h1>
-          <p className="text-gray-600 text-sm">
-            Manage all organizations in the workspace
-          </p>
-        </div>
-        <button
-          onClick={handleAdd}
-          className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-        >
-          <Plus className="w-5 h-5" />
-          Add Organization
-        </button>
-      </div>
+      <PageHeading
+        title="Organization Management"
+        description="Manage all organizations in the workspace"
+        action={
+          <button
+            onClick={handleAdd}
+            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
+          >
+            <Plus className="w-5 h-5" />
+            Add Organization
+          </button>
+        }
+      />
 
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">

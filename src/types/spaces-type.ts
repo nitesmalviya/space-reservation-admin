@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { JSX } from "react/jsx-runtime";
 
 export interface SpaceStatsInput {
     orgId: string;
@@ -56,18 +57,12 @@ export interface Space {
         address: string;
     };
     amenities: {
+        map(arg0: (amenity: any) => JSX.Element): ReactNode;
         filter(arg0: (a: any) => boolean): unknown;
         general: string[];
         meeting: string[];
         equipment: string[];
     };
-}
-
-export interface Amenity {
-    id: string;
-    name: string;
-    category: string;
-    iconKey?: string;
 }
 
 export interface SpacesResponse {
@@ -81,17 +76,6 @@ export interface SpacesResponse {
         items: Space[];
     };
 }
-
-export const spaceTypes = [
-    { label: "Meeting Room", value: "MEETING_ROOM" },
-    { label: "Conference Room", value: "CONFERENCE_ROOM" },
-    { label: "Desk", value: "DESK" },
-    { label: "Cabin", value: "CABIN" },
-    { label: "Auditorium", value: "AUDITORIUM" },
-    { label: "Training Room", value: "TRAINING_ROOM" },
-    { label: "Event Space", value: "EVENT_SPACE" },
-];
-
 
 export interface CreateSpaceInput {
     id: any;
