@@ -145,3 +145,13 @@ export type Amenity = {
     category: "GENERAL" | "MEETING" | "EQUIPMENT";
     createdAt?: string;
 };
+
+
+export const spaceTypes = [
+    { label: "Hot Desk", value: "HOT_DESK" },
+    { label: "Dedicated Desk", value: "DEDICATED_DESK" },
+    { label: "Private Office", value: "PRIVATE_OFFICE" },
+    { label: "Meeting Room", value: "MEETING_ROOM" },
+    { label: "Event Space", value: "EVENT_SPACE" },
+    { label: "Other", value: "OTHER" },
+];

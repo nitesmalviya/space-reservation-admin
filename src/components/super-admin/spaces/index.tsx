@@ -1,11 +1,13 @@
 "use client";
 import { useMemo, useState } from "react";
-import { Plus, Edit, Search, MapPin, Users } from "lucide-react";
+import { Plus, Edit, MapPin, Users } from "lucide-react";
 import SearchBox from "@/components/SearchBox";
-import NewSpaceModal from "@/components/space-modal";
-import { Space } from "@/types/spaces-type";
-import Page from "@/app/(private)/admin/booking-rules/page";
+import NewSpaceModal from "../../space-modal";
+import { CreateSpaceInput, Space } from "@/types/spaces-type";
 import PageHeading from "@/components/ui/page-heading";
+import { create } from "domain";
+import { createSpaceAction, getAllSpaceAction, updateSpaceAction } from "@/utils/graphql/spaces/actions";
+import { toast } from "sonner";
 
 interface SpaceDataProps {
   spaceData: Space[];
@@ -13,7 +15,9 @@ interface SpaceDataProps {
 
 export function Spaces({ spaceData }: SpaceDataProps) {
   const [spaceDataList, setSpaceDataList] = useState<Space[]>(spaceData);
-  console.log("space Data", spaceData);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -31,21 +35,46 @@ export function Spaces({ spaceData }: SpaceDataProps) {
 
   const handleOpenAdd = () => {
     setSelectedSpace(null);
+    setIsModalOpen(true);
     setShowAddForm(true);
     setShowEditForm(false);
   };
 
-  const handleOpenEdit = (space: Space) => {
+  const handleEditSpace = (space: Space) => {
     setSelectedSpace(space);
-    setShowEditForm(true);
-    setShowAddForm(false);
+    setIsModalOpen(true); // open modal
   };
 
-  const handleSubmitSpace = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    // TODO: wire up API call here
-    setShowAddForm(false);
-    setShowEditForm(false);
+  const handleAddCSpace = async (newSpace: CreateSpaceInput) => {
+    try {
+      setLoading(true);
+
+      if (selectedSpace) {
+        const res = await updateSpaceAction({ id: selectedSpace.id, ...newSpace });
+        if (res?.updateSpace?.success) {
+          toast.success(res.updateSpace.message);
+        } else {
+          toast.error(res?.updateSpace?.message || "Failed to update space");
+        }
+      } else {
+        const res = await createSpaceAction(newSpace);
+        if (res?.createSpace?.success) {
+          toast.success(res.createSpace.message);
+        } else {
+          toast.error(res?.createSpace?.message || "Failed to create space");
+        }
+      }
+      setIsModalOpen(false);
+      const refreshedList = await getAllSpaceAction({
+        page: 1,
+        limit: 10,
+      });
+      setSpaceDataList(refreshedList.spaces.items);
+    } catch (error: any) {
+      toast.error(error.message || "Unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -118,7 +147,7 @@ export function Spaces({ spaceData }: SpaceDataProps) {
               </div>
 
               <button
-                onClick={() => handleOpenEdit(space)}
+                onClick={() => handleEditSpace(space)}
                 className="w-full flex items-center justify-center gap-2 px-4 py-2 border border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors text-sm"
               >
                 <Edit className="w-4 h-4" />
@@ -129,28 +158,17 @@ export function Spaces({ spaceData }: SpaceDataProps) {
         </div>
       </div>
 
-      {/* Add / Edit Space Modal */}
-      {(showAddForm || showEditForm) && (
-        <NewSpaceModal
-          showAddForm={showAddForm}
-          setShowAddForm={setShowAddForm}
-          showEditForm={showEditForm}
-          setShowEditForm={setShowEditForm}
-          handleAddSpace={handleSubmitSpace}
-          selectedSpace={
-            selectedSpace
-              ? {
-                name: selectedSpace.name,
-                type: undefined,
-                capacity: selectedSpace.capacity,
-                location: { floor: selectedSpace.location },
-                availability: undefined,
-                amenities: { general: selectedSpace.amenities },
-              }
-              : null
-          }
-        />
-      )}
+      {/* Add/Edit Space Modal */}
+      <NewSpaceModal
+        selectedSpace={selectedSpace}
+        onSave={handleAddCSpace}
+        loading={loading}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedSpace(null);
+        }}
+      />
     </div>
   );
 }

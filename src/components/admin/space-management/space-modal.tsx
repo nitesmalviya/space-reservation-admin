@@ -159,7 +159,6 @@ const NewSpaceModal = ({
 
   // Payload mapper
   const mapFormToPayload = (data: SpaceFormData): CreateSpaceInput => ({
-
     name: data.name,
     type: data.type,
     locationName: data.locationName,

@@ -27,7 +27,6 @@ const Analytics = ({
   return (
     <div className="p-5">
       <PageHeading title="Analytics Dashboard" description="Insights and trends across your workspace" />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
         {/* Bookings by Organization */}
         <BookingsOrganization bookingsByOrganization={bookingsByOrganization} />

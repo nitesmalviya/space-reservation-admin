@@ -61,6 +61,8 @@ mutation CreateSpace($input: CreateSpaceInput!) {
 }
   `;
 
+  
+
 // Remove Space Mutation
 export const REMOVE_SPACES_MUTATION: DocumentNode = gql`
   mutation RemoveSpace($removeSpaceId: String!) {
