@@ -1,3 +1,4 @@
+
 import SuperAdminDashboard from "@/components/super-admin/dashboard";
 import { getAllSuperAdminDashboardAction } from "@/utils/graphql/superAdminDashboard/actions";
 

@@ -33,12 +33,22 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
   const [loading, setLoading] = useState(false);
   const [showDltModel, setShowDltModel] = useState(false);
 
-  const filteredOrgs = organizationsDataList?.organizations.filter(
+  const filteredOrgs = organizationsDataList?.filter(
     (org) =>
       org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
       org.location.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const handleDebounce = (func: Function, delay: number) => {
+    let timer: NodeJS.Timeout;
+    return function (...args: any) {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        func(...args);
+      }, delay);
+    };
+  };
 
   const handleEdit = (org: Organization) => {
     setState("edit");
@@ -152,6 +162,7 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
           <SearchBox
             value={searchTerm}
             onChange={setSearchTerm}
+            onDebounce={handleDebounce}
             placeholder="Search organizations..."
           />
         </div>

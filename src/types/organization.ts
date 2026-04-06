@@ -51,7 +51,7 @@ export interface Organization {
 export interface AllOrganizationsData {
   message: string;
   success: boolean;
-  totalCount: number;
+  // totalCount: number;
   organizations: Organization[];
 }
 

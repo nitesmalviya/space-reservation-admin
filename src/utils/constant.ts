@@ -248,3 +248,9 @@ export const getInitialsName = (name: string) =>
     ?.split(" ")
     .map((n) => n.charAt(0))
     .join("");
+
+
+    export const PAGINATION_LIMIT = {
+  LIMIT: 10 as const,
+  PAGE: 1 as const,
+};

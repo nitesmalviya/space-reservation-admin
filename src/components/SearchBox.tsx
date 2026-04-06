@@ -22,6 +22,7 @@ interface SearchBoxProps {
  */
 
 export const SearchBox: React.FC<SearchBoxProps> = ({
+  onDebounce,
   value,
   onChange,
   placeholder = "Search...",

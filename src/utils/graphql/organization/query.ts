@@ -34,9 +34,11 @@ export const CREATE_ORGANIZATION: DocumentNode = gql`
 export const GET_ALL_ORGANIZATIONS_QUERY: DocumentNode = gql`
   query Organizations($searchFilter: SearchFilterInput) {
     organizations(searchFilter: $searchFilter) {
+    currentPage
       message
       success
-      totalCount
+    totalItems
+    totalPages
       organizations {
         employeeCount
         id
