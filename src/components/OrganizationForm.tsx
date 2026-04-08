@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import {
   CreateOrganizationInput,
@@ -17,6 +17,17 @@ interface OrganizationFormProps {
   readonly loading?: boolean;
 }
 
+const defaultForm = {
+  name: "",
+  industry: "",
+  primaryAdminName: "",
+  primaryAdminEmail: "",
+  domain: "",
+  locationName: "",
+  employeeCount: 0,
+}
+
+
 export function OrganizationForm({
   organization,
   onClose,
@@ -25,62 +36,39 @@ export function OrganizationForm({
   handleUpdate,
   loading,
 }: OrganizationFormProps) {
-  const [formData, setFormData] = useState({
-    name: organization?.name || "",
-    primaryAdminName: organization?.primaryAdmin.name || "",
-    industry: organization?.industry || "",
-    primaryAdminEmail: organization?.primaryAdmin.email || "",
-    domain: organization?.domain || "",
-    locationName: organization?.location.name || "",
-    employeeCount: organization?.employeeCount || 0,
-  });
+  const [formData, setFormData] = useState(defaultForm);
+
+  useEffect(() => {
+    if (organization) {
+      setFormData({
+        name: organization.name || "",
+        industry: organization.industry || "",
+        primaryAdminName: organization?.primaryAdmin?.name || "",
+        primaryAdminEmail: organization?.primaryAdmin?.email || "",
+        domain: organization.domain || "",
+        locationName: organization.location?.name || "",
+        employeeCount: organization.employeeCount || 0,
+      });
+    }
+  }, [organization]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Handle form submission
-    if (state === "create") {
-      const {
-        domain,
-        employeeCount,
-        industry,
-        locationName,
-        name,
-        primaryAdminName,
-        primaryAdminEmail,
-      } = formData;
-      const data = {
-        domain,
-        employeeCount: Number(employeeCount),
-        industry,
-        locationName,
-        name,
-        primaryAdminName,
-        primaryAdminEmail,
-      };
-      await handleCreate?.(data);
-    } else {
-      const {
-        domain,
-        employeeCount,
-        industry,
-        locationName,
-        name,
-        primaryAdminName,
-        primaryAdminEmail,
-      } = formData;
-      const data = {
-        id: organization?.id!,
-        domain,
-        employeeCount: Number(employeeCount),
-        industry,
-        locationName,
-        name,
-        primaryAdminName,
-        primaryAdminEmail,
-      };
+    const payload = {
+      ...formData,
+      employeeCount: Number(formData.employeeCount),
+    };
 
-      await handleUpdate?.(data);
+    if (state === "create") {
+      await handleCreate?.(payload);
+    } else {
+      if (!organization?.id) return;
+
+      await handleUpdate?.({
+        id: organization.id,
+        ...payload,
+      });
     }
   };
 
@@ -90,7 +78,7 @@ export function OrganizationForm({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "employees" ? parseInt(value) || 0 : value,
+      [name]: name === "employeeCount" ? Number(value) : value,
     }));
   };
 

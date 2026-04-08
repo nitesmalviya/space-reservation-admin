@@ -46,12 +46,19 @@ export interface Organization {
   primaryAdminName: string;
   status: string;
   updatedAt: string;
+  locationName: string;
 }
 
 export interface AllOrganizationsData {
   message: string;
   success: boolean;
   // totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  totalItems?: number;
+  itemsPerPage?: number;
+  onPageChange: (page: number) => void;
+  onItemsPerPageChange?: (itemsPerPage: number) => void;
   organizations: Organization[];
 }
 
@@ -59,6 +66,9 @@ export interface AllOrganizationsResponse {
   organizations: AllOrganizationsData;
   message: string;
   success: boolean;
+  data: {
+    organizations: AllOrganizationsData;
+  }
 }
 
 export interface OrganizationByIdData {

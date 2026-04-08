@@ -11,8 +11,7 @@ const OrganizationsPage = async () => {
         }
     })
     const organizationsData = res?.organizations?.organizations;
-    console.log("organizationsData", organizationsData);
-
+ 
     return <Organizations organizationsData={organizationsData} />;
 }
 

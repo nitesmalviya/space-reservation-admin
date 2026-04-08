@@ -28,6 +28,7 @@ export const CREATE_ORGANIZATION: DocumentNode = gql`
       }
     }
   }
+    
 `;
 
 // GET ALL ORGANIZATIONS

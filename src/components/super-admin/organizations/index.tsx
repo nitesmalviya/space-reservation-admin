@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { Plus, Edit, Trash2, Eye, Search } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Plus } from "lucide-react";
 import { OrganizationForm } from "@/components/OrganizationForm";
 import SearchBox from "@/components/SearchBox";
 import {
@@ -11,7 +11,6 @@ import {
 } from "@/types/organization";
 import {
   createOrganization,
-  getAllOrganizations,
   removeOrganizationById,
   updateOrganizationById,
 } from "@/store/actions/organization-action";
@@ -19,35 +18,63 @@ import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import OrganizationTable from "./OrganizationTable";
 import PageHeading from "@/components/ui/page-heading";
+import { debounce } from "@/utils/common-service";
+import { getAllOrganizationsAction } from "@/utils/graphql/organization/action";
+import { DEFAULT_PAGINATION, paginationType } from "@/types/pagination-type";
+import Pagination from "@/components/Pagination";
+import Loader from "@/components/Loader";
 
 interface OrganizationsProps {
   readonly organizationsData: AllOrganizationsData | null;
 }
 
 export function Organizations({ organizationsData }: OrganizationsProps) {
-  const [organizationsDataList, setOrganizationsDataList] = useState<AllOrganizationsData | null>(organizationsData);
+  const [organizationsList, setOrganizationsList] = useState<AllOrganizationsData | null>(organizationsData);
+  const [pagination, setPagination] = useState<paginationType>(DEFAULT_PAGINATION);
   const [showForm, setShowForm] = useState(false);
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
-  const [searchTerm, setSearchTerm] = useState("");
   const [state, setState] = useState<"edit" | "create" | "view">("create");
   const [loading, setLoading] = useState(false);
   const [showDltModel, setShowDltModel] = useState(false);
 
-  const filteredOrgs = organizationsDataList?.filter(
-    (org) =>
-      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.location.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  const fetchOrganizationData = async (paginate: paginationType) => {
+
+    try {
+      setLoading(true)
+      const res = await getAllOrganizationsAction({
+        searchFilter: {
+          page: paginate.page,
+          limit: paginate.limit,
+          search: paginate.search || "",
+        }
+      });
+
+      const orgData = res?.organizations;
+      setOrganizationsList({
+        ...orgData,
+        organizations: orgData?.organizations || []
+      });
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    } finally {
+      setLoading(false)
+    }
+  }
+  useEffect(() => {
+    fetchOrganizationData(pagination);
+  }, [pagination]);
+
+  // search 
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setPagination(prev => ({ ...prev, page: 1, search }));
+    }, 500),
+    []
   );
 
-  const handleDebounce = (func: Function, delay: number) => {
-    let timer: NodeJS.Timeout;
-    return function (...args: any) {
-      if (timer) clearTimeout(timer);
-      timer = setTimeout(() => {
-        func(...args);
-      }, delay);
-    };
+
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, page }));
   };
 
   const handleEdit = (org: Organization) => {
@@ -63,7 +90,6 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
 
   const handleAdd = () => {
     setState("create");
-
     setEditingOrg(null);
     setShowForm(true);
   };
@@ -85,17 +111,14 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
 
     try {
       const res = await createOrganization(data);
-      debugger
+
       if (res?.success) {
         toast.success(res?.message);
-
         setShowForm(false);
+        await fetchOrganizationData(pagination);
       } else {
         toast.error(res?.message);
       }
-      setShowForm(false);
-      const refreshedList = await getAllOrganizations({ limit: 10, page: 1, search: "" });
-      setOrganizationsDataList(refreshedList?.data as any);
     } catch (err: any) {
       toast.error(err?.message || "something went wrong!");
     } finally {
@@ -106,12 +129,12 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
   //update org
   const handleUpdateOrg = async (data: UpdateOrganizationInput) => {
     setLoading(true);
-
     try {
       const res = await updateOrganizationById(data);
       if (res?.success) {
         toast.success(res?.message);
         setShowForm(false);
+        await fetchOrganizationData(pagination);
       } else {
         toast.error(res?.message);
       }
@@ -125,12 +148,12 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
   //delete org
   const handleDelete = async (id: string) => {
     setLoading(true);
-
     try {
       const res = await removeOrganizationById(id);
       if (res?.success) {
         toast.success(res?.message);
         setShowDltModel(false);
+        await fetchOrganizationData(pagination);
       } else {
         toast.error(res?.message);
       }
@@ -160,18 +183,26 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">
           <SearchBox
-            value={searchTerm}
-            onChange={setSearchTerm}
-            onDebounce={handleDebounce}
+            onSearchChange={handleDebounce}
             placeholder="Search organizations..."
           />
         </div>
+
         <OrganizationTable
-          filteredOrgs={filteredOrgs ?? []}
+          organizationsList={organizationsList?.organizations ?? []}
           handleView={handleView}
           handleEdit={handleEdit}
           openDltCnfrModel={openDltCnfrModel}
         />
+
+        <div className="mt-4 border-t border-gray-100">
+          <Pagination
+            currentPage={pagination.page}
+            totalItems={organizationsList?.totalItems || 0}
+            itemsPerPage={pagination.limit}
+            onPageChange={handlePageChange}
+          />
+        </div>
 
         {showForm && (
           <OrganizationForm

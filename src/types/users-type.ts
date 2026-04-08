@@ -24,6 +24,14 @@ export interface UserInput {
   profileImageUrl?: string | null;
   subId?: string | null;
   updatedAt?: string;
+  searchFilter?: {
+    currentPage: number;
+    totalItems: number;
+    totalPages: number;
+    search: string;
+    page: number;
+    limit: number;
+  }
 }
 export interface UserStats {
   activeEmployees: number;

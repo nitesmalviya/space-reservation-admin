@@ -2,14 +2,14 @@ import { AllOrganizationsData } from "@/types/organization";
 import { Eye, Edit, Trash2 } from "lucide-react";
 
 interface OrganizationTableProps {
-    filteredOrgs: AllOrganizationsData["organizations"];
+    organizationsList: AllOrganizationsData["organizations"];
     handleView: (org: AllOrganizationsData["organizations"][0]) => void;
     handleEdit: (org: AllOrganizationsData["organizations"][0]) => void;
     openDltCnfrModel: (org: AllOrganizationsData["organizations"][0]) => void;
 }
 
 const OrganizationTable = ({
-    filteredOrgs,
+    organizationsList,
     handleView,
     handleEdit,
     openDltCnfrModel
@@ -44,29 +44,29 @@ const OrganizationTable = ({
                 </thead>
                 <tbody className="divide-y divide-gray-200">
                     {
-                        filteredOrgs?.length === 0 ? (
+                        organizationsList?.length === 0 ? (
                             <tr>
                                 <td colSpan={7} className="px-5 py-3 text-center text-gray-600 text-sm">
                                     No organizations found
                                 </td>
                             </tr>
                         ) : (
-                            filteredOrgs?.map((org) => (
+                            organizationsList?.map((org) => (
                                 <tr key={org.id} className="hover:bg-gray-50">
                                     <td className="px-5 py-3 text-gray-900 text-sm">
-                                        {org?.name}
+                                        {org?.name || "-"}
                                     </td>
                                     <td className="px-5 py-3 text-gray-600 text-sm">
-                                        {org?.primaryAdmin?.name}
+                                        {org?.primaryAdmin?.name || "-"}
                                     </td>
                                     <td className="px-5 py-3 text-gray-600 text-sm">
-                                        {org?.industry}
+                                        {org?.industry || "-"}
                                     </td>
                                     <td className="px-5 py-3 text-gray-600 text-sm">
-                                        {org?.location?.name}
+                                        {org?.location?.name || "-"}
                                     </td>
                                     <td className="px-5 py-3 text-gray-600 text-sm">
-                                        {org?.employeeCount}
+                                        {org?.employeeCount || "-"}
                                     </td>
                                     <td className="px-5 py-3 text-sm">
                                         <span
@@ -75,7 +75,7 @@ const OrganizationTable = ({
                                                 : "bg-yellow-100 text-yellow-700"
                                                 }`}
                                         >
-                                            {org?.status}
+                                            {org?.status || "-"}
                                         </span>
                                     </td>
                                     <td className="px-5 py-3">
