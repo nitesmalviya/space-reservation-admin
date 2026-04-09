@@ -1,6 +1,6 @@
 import { gql, DocumentNode } from "@apollo/client";
 
-//CREATE ORGANIZATION
+//Add  ORGANIZATION
 
 export const CREATE_ORGANIZATION: DocumentNode = gql`
   mutation CreateOrganization(

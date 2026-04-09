@@ -18,7 +18,7 @@ import {
   UpdateOrganizationInput,
 } from "@/types/organization";
 
-//create organization
+//Add  organization
 export const createOrganizationAction = async (
   variables: CreateOrganizationInput,
 ): Promise<CreateOrganizationResponse> => {

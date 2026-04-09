@@ -31,16 +31,17 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
   const [employeesList, setEmployeesList] = useState<AllUsersResponse>(employees);
   const [selectedEmployee, setSelectedEmployee] = useState<UserInput | null>(null);
   const { stats } = employeesList || {};
-  const statsData = {
-    totalEmployees: stats?.totalEmployees || 0,
-    activeEmployees: stats?.activeEmployees || 0,
-    newThisMonth: stats?.newThisMonth || 0
-  }
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [formState, setFormState] = useState<"create" | "update">("create");
+
+  const statsData = {
+    totalEmployees: stats?.totalEmployees || 0,
+    activeEmployees: stats?.activeEmployees || 0,
+    newThisMonth: stats?.newThisMonth || 0
+  }
 
   // Confirmation modal state
   const [confirmAction, setConfirmAction] = useState<

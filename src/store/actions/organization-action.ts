@@ -11,12 +11,12 @@ import {
   updateOrganizationByIdAction,
 } from "@/utils/graphql/organization/action";
 
-//create organization action
+//Add  organization action
 export const createOrganization = async (data: CreateOrganizationInput) => {
   try {
-    
+
     const res = await createOrganizationAction(data);
-    
+
     if (res?.createOrganization?.success) {
       return {
         success: true,
@@ -72,7 +72,7 @@ export const getOrganizationById = async (id: string) => {
 
 //update organization by id action
 export const updateOrganizationById = async (data: UpdateOrganizationInput) => {
-  try {    
+  try {
     const res = await updateOrganizationByIdAction(data);
     if (res?.updateOrganization?.success) {
       return {

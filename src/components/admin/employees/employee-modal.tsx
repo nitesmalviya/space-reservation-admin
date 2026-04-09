@@ -44,7 +44,6 @@ export default function EmployeeModal({
 }: EmployeeModalProps) {
   const [formData, setFormData] = useState<EmployeeFormData>(emptyForm);
   const [, forceUpdate] = useState(0);
-  const [loading, setLoading] = useState(false);
 
   const validator = useRef(
     new SimpleReactValidator({
@@ -154,6 +153,7 @@ export default function EmployeeModal({
               </label>
               <input
                 id="email"
+                name="email"
                 type="email"
                 value={formData.email}
                 onChange={handleChange}

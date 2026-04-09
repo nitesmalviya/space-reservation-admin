@@ -1,4 +1,5 @@
 import { RecentEmployees } from "@/types/dashboard/admin";
+import { formatDate } from "@/utils/constant";
 
 const EmployeeOverview = ({ recentEmployeesData }: { recentEmployeesData: RecentEmployees[] }) => {
     return (
@@ -42,7 +43,7 @@ const EmployeeOverview = ({ recentEmployeesData }: { recentEmployeesData: Recent
                                         {employee.role}
                                     </span>
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Joined {employee?.joinedDate}
+                                        Joined {formatDate(employee?.joinedDate)}
                                     </p>
                                 </div>
                             </div>

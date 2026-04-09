@@ -109,7 +109,6 @@ export function OrganizationForm({
           className="bg-white rounded-lg border border-gray-200 p-5"
         >
           <div className="space-y-4">
-            {/* Organization Name */}
             <div>
               <label
                 htmlFor="name"
@@ -270,7 +269,7 @@ export function OrganizationForm({
                 {!loading &&
                   (state === "edit"
                     ? "Update Organization"
-                    : "Create Organization")}
+                    : "Add New Organization")}
                 {loading && <Loader size="sm" />}
               </button>
             )}

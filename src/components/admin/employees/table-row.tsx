@@ -5,7 +5,7 @@ import { Edit, Power, Trash2 } from "lucide-react";
 interface TableRowProps {
     employee: UserInput;
     handleToggleStatus: (employee: UserInput) => void;
-    handleDeleteEmployee: (employee: UserInput[]) => void;
+    handleDeleteEmployee: (id: string) => void;
     handleEditEmployee: (employee: UserInput) => void;
 }
 
@@ -15,13 +15,6 @@ const TableRow = ({
     handleDeleteEmployee,
     handleEditEmployee
 }: TableRowProps) => {
-    function setShowEmployeeModal(arg0: boolean) {
-        throw new Error("Function not implemented.");
-    }
-
-    function setSelectedEmployee(id: string) {
-        throw new Error("Function not implemented.");
-    }
 
     return (
         <tr key={employee.id} className="hover:bg-gray-50">

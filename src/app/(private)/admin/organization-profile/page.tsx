@@ -3,13 +3,16 @@ import { getLocationsByOrgAction } from "@/utils/graphql/location/actions";
 
 
 const AdminOrganizationProfilePage = async () => {
+
   const res = await getLocationsByOrgAction({
     page: 1,
     limit: 10,
   });
-  const locations = res?.locationsByOrg?.locations;
+
+  const locations = res?.locationsByOrg?.locations ?? [];
 
   return <OrgAdminProfile locations={locations} />;
+
 }
 
 export default AdminOrganizationProfilePage;

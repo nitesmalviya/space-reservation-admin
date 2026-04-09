@@ -137,67 +137,7 @@ export function OrgAdminBookingRules() {
           </div>
         </div>
 
-        {/* Occupancy Rules */}
-        {/* <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <Users className="w-6 h-6 text-gray-700" />
-            <h2 className="text-gray-900 text-base">Occupancy Rules</h2>
-          </div>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-gray-700 mb-2 text-sm">
-                Maximum Occupancy by Space Type
-              </label>
-              <div className="space-y-3">
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 w-40">
-                    Meeting Room:
-                  </span>
-                  <input
-                    type="number"
-                    defaultValue={10}
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  />
-                  <span className="text-xs text-gray-500">people</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 w-40">
-                    Conference Room:
-                  </span>
-                  <input
-                    type="number"
-                    defaultValue={20}
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  />
-                  <span className="text-xs text-gray-500">people</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 w-40">
-                    Training Room:
-                  </span>
-                  <input
-                    type="number"
-                    defaultValue={30}
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  />
-                  <span className="text-xs text-gray-500">people</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600 w-40">
-                    Auditorium:
-                  </span>
-                  <input
-                    type="number"
-                    defaultValue={50}
-                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  />
-                  <span className="text-xs text-gray-500">people</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div> */}
 
         {/* Save Button */}
         <div className="flex items-center gap-4">
