@@ -49,4 +49,69 @@ export interface BookingsDataResponse {
   items: Booking[];
 }
 
- 
+
+export interface bookingRulles {
+  message(message: any): unknown;
+  success: any;
+  advanceBookingWindow?: string;
+  minNoticePeriod: string;
+  cancellationWindow: number;
+  bufferTime: string;
+  requireAdminApproval: boolean;
+  autoApproveBookings: boolean;
+  id: string;
+  createdAt?: string;
+  orgId: string;
+  updateBookingRules: bookingRulles;
+}
+export interface UpdateBookingRulesInput {
+  orgId: string;
+  advanceBookingWindow: string;
+  minNoticePeriod: string;
+  cancellationWindow: string;
+  bufferTime: string;
+  requireAdminApproval: boolean;
+  autoApproveBookings: boolean;
+}
+
+export interface BookingRulesData {
+  id: string;
+  orgId: string;
+  advanceBookingWindow: string;
+  minNoticePeriod: string;
+  cancellationWindow: string;
+  bufferTime: string;
+  requireAdminApproval: boolean;
+  autoApproveBookings: boolean;
+}
+export interface UpdateBookingRulesResponse {
+  updateBookingRules: {
+    data: BookingRulesData;
+    success: boolean;
+    message: string;
+  };
+}
+
+
+// get booking rules 
+export interface BookingRulesInput {
+  id: string;
+  createdAt?: string;
+  orgId: string;
+  advanceBookingWindow: string;
+  minNoticePeriod: string;
+  cancellationWindow: string;
+  bufferTime: string;
+  requireAdminApproval: boolean;
+  autoApproveBookings: boolean;
+  bookingRules: bookingRulles;
+}
+
+
+export interface BookingRulesResponse {
+  bookingRules: {
+    data: BookingRulesData;
+    success: boolean;
+    message: string;
+  };
+}
