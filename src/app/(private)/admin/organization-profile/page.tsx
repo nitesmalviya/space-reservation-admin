@@ -1,4 +1,4 @@
-import { OrgAdminProfile } from "@/components/admin/organization-profile";
+import OrgAdminProfile from "@/components/admin/organization-profile";
 import { getLocationsByOrgAction } from "@/utils/graphql/location/actions";
 
 

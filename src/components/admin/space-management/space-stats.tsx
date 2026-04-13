@@ -1,13 +1,9 @@
-interface SpaceStats {
-    totalSpaces: number;
-    activeSpaces: number;
-    currentlyOccupied: number;
-    avgUtilization: number;
-    totalBookings: number;
-}
+import { SpaceStatsType } from "@/types/spaces-type";
+
+
 
 interface SpaceStatsDataProps {
-    spaceStatsData: SpaceStats;
+    spaceStatsData: SpaceStatsType;
 }
 
 const SpaceStats = ({ spaceStatsData }: SpaceStatsDataProps) => {

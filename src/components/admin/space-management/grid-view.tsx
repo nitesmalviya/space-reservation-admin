@@ -109,7 +109,9 @@ export default function GridView({
               <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <p>
+                  {space?.location?.name}
                   {space?.floor}, {space?.wing}
+
                 </p>
                 <p className="text-xs text-gray-500">
                   {space?.building}

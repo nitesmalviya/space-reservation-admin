@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { JSX } from "react/jsx-runtime";
 
 export interface AdminDashboardStats {
   adminDashboard: any;
@@ -33,11 +34,14 @@ export interface SpaceUtilizationData {
 }
 
 export interface RecentEmployees {
+  map(arg0: (employee: any) => JSX.Element): ReactNode;
+  length: number;
   email: string;
   id: string;
   joinedDate: string;
   name: string;
   role: string;
+
 }
 export interface UpcomingBookings {
   length: number;

@@ -109,6 +109,12 @@ export interface BookingRulesInput {
 
 
 export interface BookingRulesResponse {
+  requireAdminApproval: boolean | undefined;
+  autoApproveBookings: boolean | undefined;
+  bufferTime: string | number | readonly string[] | undefined;
+  cancellationWindow: string | number | readonly string[] | undefined;
+  minNoticePeriod: string | number | readonly string[] | undefined;
+  advanceBookingWindow: string | number | readonly string[] | undefined;
   bookingRules: {
     data: BookingRulesData;
     success: boolean;

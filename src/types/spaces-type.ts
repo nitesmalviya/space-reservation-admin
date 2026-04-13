@@ -5,7 +5,7 @@ export interface SpaceStatsInput {
     orgId: string;
 }
 
-export interface SpaceStats {
+export interface SpaceStatsType {
     id?: string;
     activeSpaces: string;
     avgUtilization: string;
@@ -15,7 +15,7 @@ export interface SpaceStats {
 }
 
 export interface SpaceStatsResponse {
-    spaceStats: SpaceStats;
+    spaceStats: SpaceStatsType;
 }
 
 export interface SpacesInput {

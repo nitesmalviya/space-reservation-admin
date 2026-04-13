@@ -1,14 +1,5 @@
 "use client";
 import { useState } from "react";
-import {
-  Building2,
-  MapPin,
-  Phone,
-  Upload,
-  Plus,
-  Edit,
-  Trash2,
-} from "lucide-react";
 import LocationModal from "./location-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { createLocationAction, getLocationsByOrgAction } from "@/utils/graphql/location/actions";
@@ -22,7 +13,7 @@ interface OrgAdminProfileProps {
   readonly locations: LocationByOrg[];
 }
 
-export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
+const OrgAdminProfile = ({ locations }: OrgAdminProfileProps) => {
   const [loading, setLoading] = useState(false);
   const [orgName, setOrgName] = useState("Bitcot Technology");
   const [orgEmail, setOrgEmail] = useState("contact@bitcot.com");
@@ -59,11 +50,10 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
       try {
         setLoading(true);
         const res = await createLocationAction(newLocation);
+        debugger
         if (res?.createLocation?.success) {
           toast.success(res.createLocation.message);
-          const updated = await getLocationsByOrgAction({
-
-          });
+          const updated = await getLocationsByOrgAction({});
           setLocationList(updated.locationsByOrg.locations);
           setModalOpen(false);
         } else {
@@ -143,3 +133,6 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
     </div>
   );
 }
+
+
+export default OrgAdminProfile;

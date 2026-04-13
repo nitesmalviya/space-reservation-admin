@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { Location } from "./index";
 import SimpleReactValidator from "simple-react-validator";
 import { CreateLocationInput } from "@/types/location-type";
+import { useAppSelector } from "@/store/hooks";
 
 interface LocationModalProps {
   readonly isOpen: boolean;
@@ -15,7 +16,6 @@ interface LocationModalProps {
 const emptyForm: CreateLocationInput = {
   name: "",
   address: "",
-  timezone: "",
   orgId: "",
   label: "",
   contactNumber: "",
@@ -24,7 +24,6 @@ const emptyForm: CreateLocationInput = {
 interface LocationFormData {
   name: string;
   address: string;
-  timezone: string;
   orgId: string;
   label: string;
   contactNumber: string;
@@ -37,6 +36,7 @@ export default function LocationModal({
   selectedLocation,
   mode,
 }: LocationModalProps) {
+  const userData = useAppSelector((state) => state.auth.user);
   const [formData, setFormData] = useState<CreateLocationInput>(emptyForm);
   const [, forceUpdate] = useState(0);
 
@@ -59,11 +59,7 @@ export default function LocationModal({
         name: selectedLocation.name,
         label: selectedLocation.label,
         address: selectedLocation.address,
-        // city: selectedLocation.city,
-        // state: selectedLocation.state,
-        // pincode: selectedLocation.pincode,
         contactNumber: selectedLocation.contactNumber,
-        timezone: selectedLocation.timezone,
         orgId: selectedLocation.orgId,
       });
     } else {
@@ -76,11 +72,10 @@ export default function LocationModal({
 
   const mapToPayload = (data: LocationFormData): CreateLocationInput => ({
     name: data.name,
-    orgId: "b51cc444-81ab-4509-9e2d-69a2e0b2e688",
+    orgId: userData.orgId || "",
     label: data.label,
     contactNumber: data.contactNumber,
     address: data.address,
-    timezone: data.timezone || null,
   });
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -120,7 +115,7 @@ export default function LocationModal({
         {/* Form */}
         <form onSubmit={handleSubmit} className="p-5 space-y-4 overflow-y-auto">
           {/* Name + Type */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4">
             <div>
               <label
                 htmlFor="loc-name"
@@ -139,12 +134,12 @@ export default function LocationModal({
                 required
               />
             </div>
-            <div>
+            {/* <div>
               <label
                 htmlFor="loc-label"
                 className="block text-gray-700 mb-2 text-sm"
               >
-                Location Type *
+                Location Type * sf
               </label>
               <input
                 id="loc-label"
@@ -156,28 +151,8 @@ export default function LocationModal({
                 placeholder="e.g. Bitcot Tower"
                 required
               />
-            </div>
-            {/* <div>
-              <label
-                htmlFor="loc-type"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                Location Type *
-              </label>
-              <select
-                id="loc-type"
-                value={formData.type}
-                onChange={set("type")}
-                className={inputCls}
-                required
-              >
-                {LOCATION_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t}
-                  </option>
-                ))}
-              </select>
             </div> */}
+
           </div>
 
           {/* Address */}
@@ -200,64 +175,7 @@ export default function LocationModal({
             />
           </div>
 
-          {/* City / State / Pincode */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label
-                htmlFor="loc-city"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                orgId
-              </label>
-              <input
-                id="loc-city"
-                name="orgId"
-                type="text"
-                value={formData.orgId}
-                onChange={handleChange}
-                className={inputCls}
-                placeholder="orgId"
 
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="loc-state"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                timezone
-              </label>
-              <input
-                id="loc-timezone"
-                name="timezone"
-                type="text"
-                value={formData.timezone || ""}
-                onChange={handleChange}
-                className={inputCls}
-                placeholder="timezone"
-
-              />
-            </div>
-            {/* <div>
-              <label
-                htmlFor="loc-pincode"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                Pincode
-              </label>
-              <input
-                id="loc-pincode"
-                name="pincode"
-                type="text"
-                value={formData.pincode}
-                onChange={handleChange}
-                className={inputCls}
-                placeholder="000000"
-                maxLength={10}
-
-              />
-            </div> */}
-          </div>
 
           {/* Phone */}
           <div>

@@ -1,38 +1,30 @@
 "use client";
-import { useMemo, useState } from "react";
-import { Plus, Grid3x3, List, Filter } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { Grid3x3, List, Filter } from "lucide-react";
 import SpaceDetail from "./space-detail";
 import GridView from "./grid-view";
 import ListView from "./list-view";
 import SearchBox from "@/components/SearchBox";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import NewSpaceModal from "./space-modal";
-import type { CreateSpaceInput, Space } from "@/types/spaces-type";
+import type { CreateSpaceInput, Space, SpaceStatsType } from "@/types/spaces-type";
 import { createSpaceAction, getAllSpaceAction, removeSpaceAction, updateSpaceAction } from "@/utils/graphql/spaces/actions";
 import { toast } from "sonner";
 import SpaceStats from "./space-stats";
 import SpaceHeader from "./space-header";
+import { debounce } from "@/utils/common-service";
 
-
-interface SpaceStats {
-  totalSpaces: number;
-  activeSpaces: number;
-  currentlyOccupied: number;
-  avgUtilization: number;
-  totalBookings: number;
-}
 
 interface SpaceManagementComponentProps {
-  spaceStatsData: SpaceStats;
+  spaceStatsData: SpaceStatsType;
   allSpaceData: Space[];
 }
 
-export function OrgAdminSpaces({
+const OrgAdminSpaces = ({
   spaceStatsData,
   allSpaceData,
-}: SpaceManagementComponentProps) {
+}: SpaceManagementComponentProps) => {
   const [spacesList, setSpaceList] = useState<Space[]>(allSpaceData);
-
   const [selectedSpace, setSelectedSpace] = useState<Space | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showDetailView, setShowDetailView] = useState(false);
@@ -43,10 +35,7 @@ export function OrgAdminSpaces({
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const [filters, setFilters] = useState({
-    type: "all",
-    status: "all",
-    floor: "all",
-    capacity: "all",
+    type: "all"
   });
 
   // Confirmation modal state
@@ -76,38 +65,11 @@ export function OrgAdminSpaces({
           filters.type === "all" ||
           space.type === filters.type;
 
-        // ✅ STATUS
-        const matchesStatus =
-          filters.status === "all" ||
-          space.status === filters.status;
-
-        // ✅ FLOOR
-        const matchesFloor =
-          filters.floor === "all" ||
-          space.location?.name === filters.floor;
-
-        // ✅ CAPACITY
-        const matchesCapacity =
-          filters.capacity === "all" ||
-          (filters.capacity === "small" && space.capacity <= 10) ||
-          (filters.capacity === "medium" &&
-            space.capacity > 10 &&
-            space.capacity <= 30) ||
-          (filters.capacity === "large" && space.capacity > 30);
-
         return (
-          matchesSearch &&
-          matchesType &&
-          matchesStatus &&
-          matchesFloor &&
-          matchesCapacity
+          matchesSearch && matchesType
         );
       });
   }, [spacesList, searchTerm, filters]);
-
-  const uniqueFloors = useMemo(() => {
-    return Array.from(new Set(spacesList.map((s) => s.location.name)));
-  }, [spacesList]);
 
   const handleEditSpace = (space: Space) => {
     setSelectedSpace(space);
@@ -119,10 +81,21 @@ export function OrgAdminSpaces({
     setConfirmAction("delete");
   };
 
-  const handleToggleStatus = (id: string) => {
-    setSpaceList(prev => prev.map(space => space.id === id ? { ...space, status: space.status === "Active" ? "Inactive" : "Active" } : space))
-    setConfirmAction("toggle");
+  const handleToggleStatus = async (id: string) => {
+    try {
+      setLoading(true);
+      const res = await updateSpaceAction({ id });
+
+      if (res?.updateSpace?.success) {
+        toast.success(res.updateSpace.message);
+        const refreshed = await getAllSpaceAction({});
+        setSpaceList(refreshed.spaces.items);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
+
 
   const handleConfirmAction = async () => {
     if (confirmAction === "delete" && deleteId) {
@@ -153,10 +126,7 @@ export function OrgAdminSpaces({
 
   const resetFilters = () => {
     setFilters({
-      type: "all",
-      status: "all",
-      floor: "all",
-      capacity: "all"
+      type: "all"
     });
     setSearchTerm("");
   };
@@ -170,6 +140,13 @@ export function OrgAdminSpaces({
         const res = await updateSpaceAction({ id: selectedSpace.id, ...newSpace });
         if (res?.updateSpace?.success) {
           toast.success(res.updateSpace.message);
+
+          const refreshedList = await getAllSpaceAction({ page: 1, limit: 10 });
+
+          setSpaceList(refreshedList.spaces.items);
+
+          setIsModalOpen(false);
+          setSelectedSpace(null);
         } else {
           toast.error(res?.updateSpace?.message || "Failed to update space");
         }
@@ -177,16 +154,23 @@ export function OrgAdminSpaces({
         const res = await createSpaceAction(newSpace);
         if (res?.createSpace?.success) {
           toast.success(res.createSpace.message);
+
+          const refreshedList = await getAllSpaceAction({
+            page: 1,
+            limit: 10,
+          });
+
+          setSpaceList(refreshedList.spaces.items);
+
+          setIsModalOpen(false);
+          setSelectedSpace(null);
+
         } else {
           toast.error(res?.createSpace?.message || "Failed to create space");
         }
       }
       setIsModalOpen(false);
-      const refreshedList = await getAllSpaceAction({
-        page: 1,
-        limit: 10,
-      });
-      setSpaceList(refreshedList.spaces.items);
+
     } catch (error: any) {
       toast.error(error.message || "Unexpected error occurred");
     } finally {
@@ -194,20 +178,15 @@ export function OrgAdminSpaces({
     }
   };
 
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setSearchTerm(search);
+    }, 500),
+    []
+  )
+
   const uniqueTypes = useMemo(() =>
     Array.from(new Set(spacesList.map(s => s.type))),
-    [spacesList]);
-
-  const uniqueStatus = useMemo(() =>
-    Array.from(new Set(spacesList.map(s => s.status))),
-    [spacesList]);
-
-  const uniqueFloor = useMemo(() =>
-    Array.from(new Set(spacesList.map(s => s.location.name))),
-    [spacesList]);
-
-  const uniqueCapacity = useMemo(() =>
-    Array.from(new Set(spacesList.map(s => s.capacity))),
     [spacesList]);
 
   return (
@@ -232,8 +211,7 @@ export function OrgAdminSpaces({
               <div className="flex-1 relative">
                 <div className="p-3  border-gray-200">
                   <SearchBox
-                    value={searchTerm}
-                    onChange={setSearchTerm}
+                    onSearchChange={handleDebounce}
                     placeholder="Search workspaces..."
                   />
                 </div>
@@ -296,62 +274,6 @@ export function OrgAdminSpaces({
                   </select>
                 </div>
 
-                <div>
-                  <label className="block text-gray-700 mb-2 text-xs">Status</label>
-                  <select
-                    value={filters.status}
-                    onChange={(e) =>
-                      setFilters({ ...filters, status: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  >
-                    <option value="all">All Status</option>
-                    {uniqueStatus.map((status) => (
-                      <option key={status} value={status}>{status}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 mb-2 text-xs">Floor</label>
-                  <select
-                    value={filters.floor}
-                    onChange={(e) =>
-                      setFilters({ ...filters, floor: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  >
-                    <option value="all">All Floors</option>
-                    {uniqueFloor.map((floors) => (
-                      <option key={floors} value={floors}>
-                        {floors}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-gray-700 mb-2 text-xs">
-                    Capacity
-                  </label>
-                  <select
-                    value={filters.capacity}
-                    onChange={(e) =>
-                      setFilters({ ...filters, capacity: e.target.value })
-                    }
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-                  >
-                    <option value="all">All Capacities</option>
-                    {uniqueCapacity.map((capacity) => (
-                      <option key={capacity} value={capacity}>
-                        {capacity}
-
-                      </option>
-                    ))}
-
-                  </select>
-                </div>
-
                 <div className="md:col-span-5 flex justify-end">
                   <button
                     onClick={resetFilters}
@@ -365,17 +287,11 @@ export function OrgAdminSpaces({
           </div>
 
           {/* Results Count */}
-          {(searchTerm ||
-            filters.type !== "all" ||
-            filters.status !== "all" ||
-            filters.floor !== "all" ||
-            filters.capacity !== "all") && (
-              <div className="mb-4">
-                <p className="text-sm text-gray-600">
-                  Showing {filteredSpaces.length} of {spacesList.length} spaces
-                </p>
-              </div>
-            )}
+          {(
+            searchTerm ||
+            filters.type !== "all"
+          )
+          }
           {/* Grid View */}
           {viewMode === "grid" && (
             <GridView
@@ -438,5 +354,5 @@ export function OrgAdminSpaces({
 }
 
 
-export { Space };
+export default OrgAdminSpaces;
 

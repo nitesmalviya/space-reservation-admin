@@ -26,15 +26,17 @@ query LocationsByOrg($filter: SearchFilterInput) {
 }
 `;
 
-// create location
+// Create location
 export const CREATE_LOCATION_MUTATION: DocumentNode = gql`
-
 mutation CreateLocation($createLocationInput: CreateLocationInput!) {
   createLocation(createLocationInput: $createLocationInput) {
     location {
+      address
+      contactNumber
       createdAt
       name
       orgId
+       
       id
       updatedAt
     }

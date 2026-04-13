@@ -1,4 +1,4 @@
-import { OrgAdminSpaces } from "@/components/admin/space-management";
+import OrgAdminSpaces from "@/components/admin/space-management";
 import { getAllSpaceAction, getSpaceStatsAction } from "@/utils/graphql/spaces/actions";
 
 const SpaceManagementPage = async () => {

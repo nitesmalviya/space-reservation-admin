@@ -1,7 +1,12 @@
 import { RecentEmployees } from "@/types/dashboard/admin";
 import { formatDate } from "@/utils/constant";
 
-const EmployeeOverview = ({ recentEmployeesData }: { recentEmployeesData: RecentEmployees[] }) => {
+interface RecentEmployesProps {
+    recentEmployeesData: RecentEmployees;
+}
+
+const EmployeeOverview = ({ recentEmployeesData }: RecentEmployesProps) => {
+
     return (
         <div className="bg-white rounded-lg border border-gray-200 p-4">
             <h2 className="text-gray-900 mb-3 text-base">Recent Employees</h2>

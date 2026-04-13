@@ -3,6 +3,7 @@ import { spaceTypes, CreateSpaceInput } from "../../../types/spaces-type";
 import { useState, useRef, useEffect } from "react";
 import SimpleReactValidator from "simple-react-validator";
 import { getAllSpaceAction } from "@/utils/graphql/spaces/actions";
+import { useAppSelector } from "@/store/hooks";
 
 export interface SpaceFormData {
   amenityIds: string[] | undefined;
@@ -51,6 +52,8 @@ const NewSpaceModal = ({
   onSave,
   loading: isSubmitting = false,
 }: NewSpaceModalProps) => {
+
+  const userData = useAppSelector((state) => state.auth.user);
 
   const [formData, setFormData] = useState<SpaceFormData>(emptyForm);
   const [, forceUpdate] = useState(0);
@@ -162,7 +165,7 @@ const NewSpaceModal = ({
     name: data.name,
     type: data.type,
     locationName: data.locationName,
-    orgId: "b51cc444-81ab-4509-9e2d-69a2e0b2e688",
+    orgId: userData.orgId || "",
     capacity: Number(data.capacity) || 0,
     wing: data.wing,
     building: data.building,
