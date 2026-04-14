@@ -35,7 +35,7 @@ export interface LocationByOrgResponse {
 }
 
 
-
+// create location type
 export interface CreateLocationInput {
     name: string;
     orgId: string;
@@ -57,6 +57,39 @@ export interface CreateLocationResponse {
             orgId: string;
             id: string;
             updatedAt: string;
+        };
+    };
+}
+
+// Update location type
+export interface UpdateLocationInput {
+    name: string;
+    orgId: string;
+    label: string;
+    contactNumber: string;
+    address?: string;
+    timezone?: string | null;
+}
+
+export interface UpdateLocationResponse {
+    success: any;
+    location: Location;
+    updateLocation: {
+        success: boolean;
+        message: string;
+    };
+}
+
+
+// Remove location type
+export interface RemoveLocationInput {
+    id: string;
+}
+export interface RemoveLocationResponse {
+    data: {
+        removeLocation: {
+            success: boolean;
+            message: string;
         };
     };
 }

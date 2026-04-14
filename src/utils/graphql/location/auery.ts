@@ -45,3 +45,21 @@ mutation CreateLocation($createLocationInput: CreateLocationInput!) {
   }
 }
 `;
+
+export const UPDATE_LOCATION_MUTATION: DocumentNode = gql`
+mutation UpdateLocation($updateLocationInput: UpdateLocationInput!) {
+  updateLocation(updateLocationInput: $updateLocationInput) {
+    message
+    success
+  }
+}
+  `;
+
+export const REMOVE_LOCATION_MUTATION: DocumentNode = gql`
+  mutation RemoveOrganization($removeLocationId: String!) {
+  removeLocation(id: $removeLocationId) {
+    message
+    success
+  }
+}
+    `;

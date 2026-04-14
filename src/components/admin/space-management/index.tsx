@@ -76,10 +76,7 @@ const OrgAdminSpaces = ({
     setIsModalOpen(true); // open modal
   };
 
-  const handleDeleteSpace = (id: string) => {
-    setDeleteId(id);
-    setConfirmAction("delete");
-  };
+
 
   const handleToggleStatus = async (id: string) => {
     try {
@@ -96,6 +93,10 @@ const OrgAdminSpaces = ({
     }
   };
 
+  const handleDeleteSpace = (id: string) => {
+    setDeleteId(id);
+    setConfirmAction("delete");
+  };
 
   const handleConfirmAction = async () => {
     if (confirmAction === "delete" && deleteId) {
@@ -104,8 +105,10 @@ const OrgAdminSpaces = ({
         const res = await removeSpaceAction({ id: deleteId });
         if (res?.removeSpace?.success) {
           toast.success(res.removeSpace.message);
+
           const refreshedList = await getAllSpaceAction({});
           setSpaceList(refreshedList.spaces.items);
+
         } else {
           toast.error(res?.removeSpace?.message || "Failed to delete space");
         }

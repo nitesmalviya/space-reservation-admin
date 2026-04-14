@@ -7,6 +7,9 @@ export interface SearchInput {
 export interface AllOrganizationsInput {
   searchFilter: SearchInput;
 }
+export interface OrganizationInput {
+  organizationId: string;
+}
 
 export interface Location {
   address: string;
@@ -30,6 +33,7 @@ export interface PrimaryAdmin {
   subId: string;
   updatedAt: string;
 }
+
 export interface Organization {
   contactEmail: string;
   domain: string;
@@ -71,6 +75,24 @@ export interface AllOrganizationsResponse {
   }
 }
 
+export interface OrganizationData {
+  name: string,
+  domain: string,
+  contactEmail: string,
+  logoUrl: string
+
+}
+export interface OrganizationResponse {
+  organization: any;
+  data: {
+    organization: {
+      message: string;
+      success: boolean;
+      organization: OrganizationData;
+    };
+  };
+}
+
 export interface OrganizationByIdData {
   organization: Organization;
 }
@@ -90,15 +112,16 @@ export interface DeleteOrganizationByIdData {
 }
 
 export interface UpdateOrganizationInput {
-  contactEmail?: string;
-  domain: string;
   employeeCount: number;
   id: string;
   industry: string;
   locationName: string;
-  name: string;
   primaryAdminEmail?: string;
   primaryAdminName: string;
+  name: string,
+  domain: string,
+  contactEmail: string,
+  logoUrl: string
 }
 
 export interface UpdateOrganizationByIdData {
