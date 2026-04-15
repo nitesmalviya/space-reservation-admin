@@ -83,9 +83,10 @@ export interface UpdateLocationResponse {
 
 // Remove location type
 export interface RemoveLocationInput {
-    id: string;
+    removeLocationId: string;
 }
 export interface RemoveLocationResponse {
+    removeLocation: any;
     data: {
         removeLocation: {
             success: boolean;

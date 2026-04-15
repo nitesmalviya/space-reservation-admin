@@ -11,26 +11,17 @@ import { updateOrganizationAction } from "@/utils/graphql/organization/action";
 import { Organization, OrganizationResponse, UpdateOrganizationInput } from "@/types/organization";
 import { useAppSelector } from "@/store/hooks";
 
-
-
 interface OrgAdminProfileProps {
   readonly locations: LocationByOrg[];
   readonly organizationData: Organization | null;
 }
 
 const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) => {
+
   const userData = useAppSelector((state) => state.auth.user);
-
   const [loading, setLoading] = useState(false);
-
   // Location modal state
   const [locationList, setLocationList] = useState<LocationByOrg[]>(locations);
-  useEffect(() => {
-    if (locations?.length) {
-      setLocationList(locations);
-    }
-  }, [locations]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedLocation, setSelectedLocation] = useState<LocationByOrg | null>(
@@ -38,18 +29,19 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
   );
   const [selectedOraganizationDetails, setSelectedOraganizationDetails] =
     useState<Organization | null>(null);
+  // Delete confirmation modal state
+  const [confirmOpen, setConfirmOpen] = useState<"delete" | null>(null);
+  // Confirmation modal state
+  const [locationToDelete, setLocationToDelete] = useState<LocationByOrg | null>(null);
 
   useEffect(() => {
     if (organizationData) {
       setSelectedOraganizationDetails(organizationData);
     }
   }, [organizationData]);
-
-  // Delete confirmation modal state
-
-  const [confirmOpen, setConfirmOpen] = useState<"delete" | null>(null);
-  // Confirmation modal state
-  const [locationToDelete, setLocationToDelete] = useState<LocationByOrg | null>(null);
+  useEffect(() => {
+    setLocationList(locations || []);
+  }, [locations]);
 
   const openCreateModal = () => {
     setModalMode("create");
@@ -57,7 +49,7 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
     setModalOpen(true);
   };
 
-  const openEditModal = (location: Location) => {
+  const openEditModal = (location: LocationByOrg) => {
     setModalMode("edit");
     setSelectedLocation(location);
     setModalOpen(true);
@@ -68,8 +60,6 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
       setLoading(true)
 
       const res = await updateOrganizationAction(data);
-
-      debugger
 
       if (res?.updateOrganization?.success) {
         toast.success(res.updateOrganization.message);
@@ -91,7 +81,6 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
     try {
       setLoading(true);
 
-      debugger
       if (selectedLocation) {
 
         const res = await updateLocationAction({ id: selectedLocation.id, ...newLocation });
@@ -133,8 +122,6 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
 
   };
 
-
-
   const requestDeleteLocation = (location: LocationByOrg) => {
     setLocationToDelete(location);
     setConfirmOpen("delete");
@@ -147,9 +134,8 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
       setLoading(true);
 
       const res = await removeLocationAction({
-        removeLocationId: locationToDelete.id,
+        removeLocationId: locationToDelete.id
       });
-      debugger
 
       if (res?.removeLocation?.success) {
         toast.success(res.removeLocation.message);
@@ -165,7 +151,7 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
       toast.error(error.message || "Unexpected  error occured")
     } finally {
       setLoading(false);
-      setConfirmOpen(false);
+      setConfirmOpen(null);
       setLocationToDelete(null);
     }
 
