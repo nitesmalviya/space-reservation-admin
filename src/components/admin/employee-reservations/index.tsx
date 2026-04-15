@@ -4,6 +4,7 @@ import { Calendar, Clock, MapPin, User, Check, X, Filter } from "lucide-react";
 import { EmployeeReservationsInput } from "@/types/employee-type";
 import { formatDate, formatSpaceType } from "@/utils/constant";
 import SummaryCards from "./summary-cards";
+import PageHeading from "@/components/ui/page-heading";
 
 interface ReservationListProps {
   readonly employeeReservations: EmployeeReservationsInput[];
@@ -42,12 +43,7 @@ export function OrgAdminReservations({ employeeReservations }: ReservationListPr
 
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Employee Reservations</h1>
-        <p className="text-gray-600 text-sm">
-          Manage booking requests from employees
-        </p>
-      </div>
+      <PageHeading title="Employee Reservations" description="Manage booking requests from employees" />
 
       {/* Summary Cards */}
       <SummaryCards

@@ -1,17 +1,9 @@
 import {
-  Plus,
   Edit,
   Power,
-  Trash2,
-  Users,
   MapPin,
-  X,
   Clock,
   ArrowLeft,
-  Grid3x3,
-  List,
-  Search,
-  Filter,
   Calendar,
   CheckCircle2,
   UserCheck,
@@ -115,39 +107,6 @@ export default function SpaceDetail({
                 </button>
               </div>
             </div>
-
-            {/* Current Occupancy Alert */}
-            {/* {selectedSpace.currentOccupancy?.isOccupied && (
-              <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <UserCheck className="w-5 h-5 text-orange-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-orange-900 mb-1">
-                      Currently Occupied
-                    </p>
-                    <div className="grid grid-cols-2 gap-3 text-sm text-orange-800">
-                      <div>
-                        <span className="text-orange-600">User:</span>{" "}
-                        {selectedSpace.currentOccupancy.user}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Department:</span>{" "}
-                        {selectedSpace.currentOccupancy.department}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Time:</span>{" "}
-                        {selectedSpace.currentOccupancy.startTime} -{" "}
-                        {selectedSpace.currentOccupancy.endTime}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Purpose:</span>{" "}
-                        {selectedSpace.currentOccupancy.purpose}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )} */}
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
               <div>

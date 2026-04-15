@@ -1,26 +1,39 @@
 import OrgAdminSpaces from "@/components/admin/space-management";
 import { getAllSpaceAction, getSpaceStatsAction } from "@/utils/graphql/spaces/actions";
+import { cookies } from "next/headers";
 
 const SpaceManagementPage = async () => {
+    const cookieStore = cookies();
+    const userCookie = (await cookieStore).get("user")?.value;
 
-    const spaceStatsRes = await getSpaceStatsAction({
-        orgId: "cf117671-e13c-4232-849a-dfe9f3265c87"
-    });
+    let user = null;
 
-    const spaceStatsData = spaceStatsRes.spaceStats;
+    try {
+        user = userCookie
+            ? JSON.parse(decodeURIComponent(userCookie))
+            : null;
+    } catch (e) {
+        console.error("Invalid cookie");
+    }
 
-    const allSpaceRes = await getAllSpaceAction({
-        filter: undefined,
-    });
+    const orgId = user?.orgId;
 
-    const allSpaceData = allSpaceRes.spaces.items; // IMPORTANT
+    if (!orgId) {
+        return <div>No organization found</div>;
+    }
+
+    const [spaceStatsRes, allSpaceRes] = await Promise.all([
+        getSpaceStatsAction({ orgId }),
+        getAllSpaceAction({}),
+    ]);
 
     return (
         <OrgAdminSpaces
-            spaceStatsData={spaceStatsData}
-            allSpaceData={allSpaceData}
+            spaceStatsData={spaceStatsRes?.spaceStats ?? null}
+            allSpaceData={allSpaceRes?.spaces?.items ?? []}
         />
     );
 };
+
 
 export default SpaceManagementPage;

@@ -9,6 +9,7 @@ import OverviewStatsCard from "./overview-stats-card";
 import EmployeeOverview from "./employee-overview";
 import SpaceUtilization from "./space-utilization";
 import UpcomingBookingsCard from "./upcoming-booking-card";
+import PageHeading from "@/components/ui/page-heading";
 
 interface AdminDashboardStatsComponentProps {
   overviewStatsData: OverviewStats;
@@ -25,12 +26,7 @@ const OrgAdminDashboard = ({
 }: AdminDashboardStatsComponentProps) => {
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Dashboard</h1>
-        <p className="text-gray-600 text-sm">
-          Welcome back! Here's your organization overview.
-        </p>
-      </div>
+      <PageHeading title="Dashboard" description="Welcome back! Here's your organization overview." />
 
       {/* Metrics */}
       <OverviewStatsCard overviewStatsData={overviewStatsData} />

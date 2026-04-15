@@ -76,8 +76,6 @@ const OrgAdminSpaces = ({
     setIsModalOpen(true); // open modal
   };
 
-
-
   const handleToggleStatus = async (id: string) => {
     try {
       setLoading(true);
@@ -93,6 +91,7 @@ const OrgAdminSpaces = ({
     }
   };
 
+  // Delete functionality
   const handleDeleteSpace = (id: string) => {
     setDeleteId(id);
     setConfirmAction("delete");
@@ -181,6 +180,7 @@ const OrgAdminSpaces = ({
     }
   };
 
+  // Search query
   const handleDebounce = useCallback(
     debounce((search: string) => {
       setSearchTerm(search);
@@ -289,12 +289,7 @@ const OrgAdminSpaces = ({
             )}
           </div>
 
-          {/* Results Count */}
-          {(
-            searchTerm ||
-            filters.type !== "all"
-          )
-          }
+
           {/* Grid View */}
           {viewMode === "grid" && (
             <GridView

@@ -10,6 +10,7 @@ import OrganizationDetails from "./organization-details";
 import { updateOrganizationAction } from "@/utils/graphql/organization/action";
 import { Organization, OrganizationResponse, UpdateOrganizationInput } from "@/types/organization";
 import { useAppSelector } from "@/store/hooks";
+import PageHeading from "@/components/ui/page-heading";
 
 interface OrgAdminProfileProps {
   readonly locations: LocationByOrg[];
@@ -159,12 +160,7 @@ const OrgAdminProfile = ({ locations, organizationData }: OrgAdminProfileProps) 
 
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Organization Profile</h1>
-        <p className="text-gray-600 text-sm">
-          Manage your organization details and locations
-        </p>
-      </div>
+      <PageHeading title="Organization Profile" description="Manage your organization details and locations" />
 
       {/* Organization Details */}
       <OrganizationDetails

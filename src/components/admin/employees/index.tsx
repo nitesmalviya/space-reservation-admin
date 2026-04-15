@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import EmployeeModal from "./employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import SearchBox from "@/components/SearchBox";
@@ -9,6 +9,7 @@ import EmployeeHeader from "./employee-header";
 import TableRow from "./table-row";
 import { getAllUsersAction, removeUserAction, updateUserAction } from "@/utils/graphql/users/actions";
 import { toast } from "sonner";
+import { debounce } from "@/utils/common-service";
 
 
 export interface Employee {
@@ -122,6 +123,14 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
     }
   };
 
+  // Search query
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setSearchTerm(search);
+    }, 500),
+    []
+  )
+
   return (
     <div className="p-6">
       <EmployeeHeader
@@ -138,8 +147,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
         <div className="p-4 border-b border-gray-200">
           <div className="p-3  border-gray-200">
             <SearchBox
-              value={searchTerm}
-              onChange={setSearchTerm}
+              onSearchChange={handleDebounce}
               placeholder="Search employees..."
             />
           </div>

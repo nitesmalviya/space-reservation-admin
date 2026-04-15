@@ -1,6 +1,7 @@
 "use client"
 import { useState } from 'react';
 import { Save, Bell, Mail, Shield, Globe, Clock, User } from 'lucide-react';
+import PageHeading from '@/components/ui/page-heading';
 
 const OrgAdminSettings = ({ notificationSettings }: { notificationSettings: any }) => {
   const [settings, setSettings] = useState({
@@ -44,10 +45,7 @@ const OrgAdminSettings = ({ notificationSettings }: { notificationSettings: any 
 
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Settings</h1>
-        <p className="text-gray-600 text-sm">Manage your organization preferences and configurations</p>
-      </div>
+      <PageHeading title="Settings" description="Manage your organization preferences and configurations" />
 
       <form onSubmit={handleSave} className="space-y-3">
         {/* Account Settings */}

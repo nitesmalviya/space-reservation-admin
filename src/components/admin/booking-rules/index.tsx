@@ -1,4 +1,5 @@
 "use client"
+import PageHeading from "@/components/ui/page-heading";
 import { BookingRulesResponse } from "@/types/bookings-type";
 import { updateBookingRulesAction } from "@/utils/graphql/booking-rules/actions";
 import { Clock, Calendar, Shield } from "lucide-react";
@@ -83,12 +84,7 @@ export function OrgAdminBookingRules({ bookingRulesData }: BookingRulesProps) {
 
   return (
     <div className="p-5">
-      <div className="mb-5">
-        <h1 className="text-gray-900 mb-1">Booking Rules</h1>
-        <p className="text-gray-600 text-sm">
-          Configure global booking policies for all spaces
-        </p>
-      </div>
+      <PageHeading title="Booking Rules" description="Configure global booking policies for all spaces" />
 
       <form className="space-y-5" onSubmit={handleSave}>
         {/* Booking Window Rules */}
