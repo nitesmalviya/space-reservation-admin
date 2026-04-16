@@ -30,7 +30,7 @@ export default function GridView({
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-      {spaces?.map((space) => (
+      {spaces?.map((space: Space) => (
         <div
           key={space?.id}
           className="bg-white border border-gray-200 rounded-lg p-5 hover:shadow-md transition-shadow cursor-pointer"
@@ -109,9 +109,7 @@ export default function GridView({
               <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <p>
-                  {space?.location?.name}
-                  {space?.floor}, {space?.wing}
-
+                  {space?.location?.name},{space?.floor}, {space?.wing}
                 </p>
                 <p className="text-xs text-gray-500">
                   {space?.building}

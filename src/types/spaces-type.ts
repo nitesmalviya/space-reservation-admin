@@ -3,6 +3,7 @@ import { JSX } from "react/jsx-runtime";
 
 export interface SpaceStatsInput {
     orgId: string;
+
 }
 
 export interface SpaceStatsType {

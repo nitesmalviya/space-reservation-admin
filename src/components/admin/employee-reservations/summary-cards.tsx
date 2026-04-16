@@ -10,24 +10,35 @@ const SummaryCards = ({
     approvedCount: number,
     rejectedCount: number
 }) => {
+
+
+
+    const cardStats = [
+        {
+            title: "Total Requests",
+            value: employeeReservations?.length ?? 0
+        },
+        {
+            title: "Pending",
+            value: pendingCount ?? 0
+        },
+        {
+            title: "Approved",
+            value: approvedCount ?? 0
+        },
+        {
+            title: "Rejected",
+            value: rejectedCount ?? 0
+        }
+    ]
     return (
         <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-5">
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="text-xs text-gray-600 mb-1">Total Requests</p>
-                <p className="text-gray-900 text-xl">{employeeReservations?.length ?? 0}</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="text-xs text-gray-600 mb-1">Pending</p>
-                <p className="text-gray-900 text-xl">{pendingCount ?? 0}</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="text-xs text-gray-600 mb-1">Approved</p>
-                <p className="text-gray-900 text-xl">{approvedCount ?? 0}</p>
-            </div>
-            <div className="bg-white rounded-lg border border-gray-200 p-4">
-                <p className="text-xs text-gray-600 mb-1">Rejected</p>
-                <p className="text-gray-900 text-xl">{rejectedCount ?? 0}</p>
-            </div>
+            {cardStats.map((card) => (
+                <div key={card.title} className="bg-white rounded-lg border border-gray-200 p-4">
+                    <p className="text-xs text-gray-600 mb-1">{card.title}</p>
+                    <p className="text-gray-900 text-xl">{card.value}</p>
+                </div>
+            ))}
         </div>
     )
 }

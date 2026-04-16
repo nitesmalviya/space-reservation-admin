@@ -48,7 +48,7 @@ const OrgAdminSpaces = ({
   const filteredSpaces = useMemo(() => {
     return spacesList
       .filter(Boolean)
-      .filter((space) => {
+      .filter((space: Space) => {
         const name = space.name?.toLowerCase() || "";
         const type = space.type?.toLowerCase() || "";
         const location = space.location?.name?.toLowerCase() || "";

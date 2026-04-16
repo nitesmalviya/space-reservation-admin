@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import SimpleReactValidator from "simple-react-validator";
-import { CreateSpaceInput } from "@/types/spaces-type";
 import { UpdateUserInput } from "@/types/users-type";
 
 export interface EmployeeFormData {

@@ -25,7 +25,7 @@ export function Spaces({ spaceData }: SpaceDataProps) {
 
   const filteredSpaces = useMemo(() => {
     return spaceDataList.filter(
-      (space) =>
+      (space: Space) =>
         space.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         space.building?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         space.location?.name.toLowerCase().includes(searchTerm.toLowerCase())

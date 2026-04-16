@@ -1,5 +1,3 @@
-import { ReactNode } from "react";
-
 export interface EmployeeReservationsInput {
   status: string;
   bookings: string;
@@ -35,6 +33,7 @@ export interface EmployeeReservationsInput {
     createdAt: string;
     activeStatus: boolean;
   }
+  filter: EmployeeReservationsInput;
 }
 export interface UserStats {
   activeEmployees: number;

@@ -84,6 +84,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
   const handleSubmitEmployee = async (newEmployee: UpdateUserInput) => {
     try {
       const res = await updateUserAction(newEmployee);
+      debugger
       if (res?.updateUser?.success) {
         toast.success(res.updateUser.message);
         const refreshedList = await getAllUsersAction({});
@@ -91,7 +92,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
       } else {
         toast.error(res?.updateUser?.message || "Failed to save employee");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       toast.error(error?.message || "Something went wrong");
     } finally {
       setShowEmployeeModal(false);
@@ -113,7 +114,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
         } else {
           toast.error(res.removeUserById.message || "Failed to delete employee");
         }
-      } catch (error) {
+      } catch (error: unknown) {
         toast.error(error?.message || "Unexpected error occurred");
       } finally {
         setLoading(false);

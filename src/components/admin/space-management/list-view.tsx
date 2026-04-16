@@ -48,7 +48,7 @@ export default function ListView({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
-            {spaces.map((space) => (
+            {spaces.map((space: Space) => (
               <tr
                 key={space.id}
                 className="hover:bg-gray-50 cursor-pointer"
@@ -76,32 +76,9 @@ export default function ListView({
                   </p>
                 </td>
                 <td className="px-5 py-4">
-                  {space.currentOccupancy?.isOccupied ? (
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-medium">
-                          {space.currentOccupancy.user
-                            ?.split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                        <div>
-                          <p className="text-sm text-gray-900 font-medium">
-                            {space?.currentOccupancy?.user}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {space?.currentOccupancy?.department}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-500">
-                        {space?.currentOccupancy?.startTime} -{" "}
-                        {space?.currentOccupancy?.endTime}
-                      </p>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">Available</span>
-                  )}
+                  <span className="text-sm text-gray-500">
+                    {space?.utilization || 0}%
+                  </span>
                 </td>
                 <td className="px-5 py-4">
                   <span
