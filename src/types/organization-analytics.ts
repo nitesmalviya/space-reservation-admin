@@ -12,14 +12,14 @@ export interface OrganizationAnalyticsDataResponse {
 
     peakBookingHours: {
         bookingsCount: number;
-        hour: string; // ✅ FIX
+        hour: string;
     }[];
 
     spaceUtilizationReport: {
         spaceName: string;
         status: string;
         totalBookings: number;
-        totalHours: string; // ✅ FIX
+        totalHours: string;
         utilizationPercentage: number;
     }[];
 
@@ -28,12 +28,12 @@ export interface OrganizationAnalyticsDataResponse {
         avgUtilization: number;
         totalBookings: number;
         totalEmployees: number;
-    }; // ✅ FIX (remove array)
+    };
 
     topEmployees: {
         bookingsCount: number;
         employeeName: string;
-        totalHours: string; // ✅ FIX
+        totalHours: string;
     }[];
 };
 
@@ -44,21 +44,16 @@ export interface StatsType {
     avgUtilization: number;
 }
 
-
 export interface BookingTrendType {
     month: string;
     bookingsCount: number;
 }
-
 
 export interface GetOrganizationAnalyticsInput {
     orgId: string;
     startDate?: string;
     endDate?: string;
 }
-
-
-
 
 export type ExportFormat = 'pdf' | 'excel';
 
@@ -74,4 +69,23 @@ export interface GetExportOrganizationAnalyticsInput {
     orgId?: string;
     format: ExportFormat;
     filter?: ExportFilter | null;
+}
+
+export interface PeakBookingHourType {
+    hour: string;
+    bookingsCount: number;
+}
+
+export interface spaceUtilizationReportType {
+    spaceName: string;
+    status: string;
+    totalBookings: number;
+    totalHours: string;
+    utilizationPercentage: number;
+}
+
+export interface TopEmployeesType {
+    bookingsCount: number;
+    employeeName: string;
+    totalHours: string;
 }

@@ -1,7 +1,12 @@
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { PeakBookingHourType } from "@/types/organization-analytics";
 import { Clock } from "lucide-react";
 
-const PeakHours = ({ peakBookingHours }: { peakBookingHours: OrganizationAnalyticsDataResponse }) => {
+
+interface PeakBookingHourTypeProps {
+    peakBookingHours: PeakBookingHourType[];
+}
+
+const PeakHours = ({ peakBookingHours }: PeakBookingHourTypeProps) => {
     return (
 
 

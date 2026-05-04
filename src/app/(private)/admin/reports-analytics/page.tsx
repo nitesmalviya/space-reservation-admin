@@ -1,28 +1,30 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import OrgAdminAnalytics from "@/components/admin/reports-analytics";
 import { getOrganizationAnalyticsAction } from "@/utils/graphql/organization-analytics/actions";
-import { useAppSelector } from "@/store/hooks";
+import { getUserFromCookie } from "@/utils/getUserFromCookie";
 
-const OrgAnalyticsPage = () => {
-    const user = useAppSelector((state) => state.auth.user);
-    const [data, setData] = useState<any>([]);
+const OrgAnalyticsPage = async () => {
+    const user = await getUserFromCookie();
+    const orgId = user?.orgId;
 
-    useEffect(() => {
-        if (!user?.orgId) return;
+    if (!orgId) {
+        return <div>No organization found</div>;
+    }
 
-        const fetchData = async () => {
-            const res = await getOrganizationAnalyticsAction({
-                orgId: user.orgId,
-            });
-            setData(res?.getOrganizationAnalytics);
-        };
+    try {
+        const res = await getOrganizationAnalyticsAction({
+            orgId: orgId,
+        });
 
-        fetchData();
-    }, [user]);
+        const data = res?.getOrganizationAnalytics ?? [];
 
-    return <OrgAdminAnalytics organizationAnalytics={data} />;
+
+        return (
+            <OrgAdminAnalytics organizationAnalytics={data} />
+        )
+    } catch (error) {
+        console.error(error);
+        return <div>Failed to load data</div>;
+    }
 };
 
 export default OrgAnalyticsPage;

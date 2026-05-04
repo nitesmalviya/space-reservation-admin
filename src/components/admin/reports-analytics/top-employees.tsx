@@ -1,8 +1,12 @@
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { TopEmployeesType } from "@/types/organization-analytics";
 import { getInitialsName } from "@/utils/constant";
 import { Users } from "lucide-react";
 
-const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDataResponse }) => {
+interface TopEmployeesProps {
+    topEmployees: TopEmployeesType[];
+}
+const TopEmployees = ({ topEmployees }: TopEmployeesProps) => {
+
     const handleExportReport = (type: string) => {
         alert(`${type} report exported successfully!`);
     };
@@ -27,9 +31,9 @@ const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDat
             </div>
             <div className="p-5">
                 <div className="space-y-3">
-                    {topEmployees?.map((employee: any, index: number) => (
+                    {topEmployees?.map((employee: TopEmployeesType) => (
                         <div
-                            key={index}
+                            key={employee.employeeName}
                             className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                         >
                             <div className="flex items-center gap-3">
@@ -40,9 +44,9 @@ const TopEmployees = ({ topEmployees }: { topEmployees: OrganizationAnalyticsDat
                                     <p className="text-sm text-gray-900 font-medium">
                                         {employee?.employeeName}
                                     </p>
-                                    <p className="text-xs text-gray-500">
+                                    {/* <p className="text-xs text-gray-500">
                                         {employee?.department}
-                                    </p>
+                                    </p> */}
                                 </div>
                             </div>
                             <div className="flex items-center gap-6">

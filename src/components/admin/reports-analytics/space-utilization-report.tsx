@@ -1,7 +1,12 @@
-import { OrganizationAnalyticsDataResponse } from "@/types/organization-analytics";
+import { spaceUtilizationReportType } from "@/types/organization-analytics";
 import { MapPin } from "lucide-react";
 
-const SpaceUtilizationReport = ({ spaceUtilizationReport }: { spaceUtilizationReport: OrganizationAnalyticsDataResponse }) => {
+interface SpaceUtilizationReportTypeProps {
+    spaceUtilizationReport: spaceUtilizationReportType[];
+}
+
+const SpaceUtilizationReport = ({ spaceUtilizationReport }: SpaceUtilizationReportTypeProps) => {
+
     const handleExportReport = (type: string) => {
         alert(`${type} report exported successfully!`);
     };
@@ -46,8 +51,8 @@ const SpaceUtilizationReport = ({ spaceUtilizationReport }: { spaceUtilizationRe
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                        {spaceUtilizationReport?.map((space, idx) => (
-                            <tr key={idx} className="hover:bg-gray-50">
+                        {spaceUtilizationReport?.map((space) => (
+                            <tr key={space.spaceName} className="hover:bg-gray-50">
                                 <td className="px-5 py-3 text-sm text-gray-900">
                                     {space.spaceName}
                                 </td>

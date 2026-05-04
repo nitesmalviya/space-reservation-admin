@@ -2,7 +2,7 @@ import { BookingTrendType } from "@/types/organization-analytics";
 import { Calendar, Clock } from "lucide-react";
 
 interface BookingTrendsProps {
-    bookingTrends: BookingTrendType;
+    bookingTrends: BookingTrendType[];
 }
 
 const BookingTrends = ({ bookingTrends }: BookingTrendsProps) => {
@@ -16,7 +16,7 @@ const BookingTrends = ({ bookingTrends }: BookingTrendsProps) => {
             </div>
             <div className="space-y-3">
                 {bookingTrends?.map((bookingTrendsItem) => (
-                    <div>
+                    <div key={bookingTrendsItem.month}>
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-sm text-gray-700">{bookingTrendsItem.month}</span>
                             <span className="text-sm text-gray-900 font-medium">

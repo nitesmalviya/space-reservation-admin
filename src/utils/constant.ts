@@ -9,6 +9,7 @@ import {
   Shield,
   Settings,
 } from "lucide-react";
+
 export const PUBLIC_PATH = {
   LOGIN: "/login",
   FORGOT_PASSWORD: "/forgot-password",
@@ -250,7 +251,7 @@ export const getInitialsName = (name: string) =>
     .join("");
 
 
-    export const PAGINATION_LIMIT = {
+export const PAGINATION_LIMIT = {
   LIMIT: 10 as const,
   PAGE: 1 as const,
 };

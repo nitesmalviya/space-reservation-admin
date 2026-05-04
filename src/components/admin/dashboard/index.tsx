@@ -26,7 +26,9 @@ const OrgAdminDashboard = ({
 }: AdminDashboardStatsComponentProps) => {
   return (
     <div className="p-5">
-      <PageHeading title="Dashboard" description="Welcome back! Here's your organization overview." />
+      <PageHeading 
+        title="Dashboard"
+        description="Welcome back! Here's your organization overview." />
 
       {/* Metrics */}
       <OverviewStatsCard overviewStatsData={overviewStatsData} />

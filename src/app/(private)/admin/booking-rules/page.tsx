@@ -1,25 +1,27 @@
-"use client";
+
 
 import { OrgAdminBookingRules } from "@/components/admin/booking-rules";
-import { useAppSelector } from "@/store/hooks";
+import { getUserFromCookie } from "@/utils/getUserFromCookie";
 import { getBookingRulesAction } from "@/utils/graphql/booking-rules/actions";
-import { useEffect, useState } from "react";
 
 const BookingRulesPage = async () => {
-    const userData = useAppSelector((state) => state.auth.user);
-    const [bookingRulesData, setBookingRulesData] = useState<any>({})
+    const user = await getUserFromCookie();
+    const orgId = user?.orgId;
 
-    useEffect(() => {
-        if (!userData?.orgId) return;
-        const fetchBookingRulsData = async () => {
-            const res = await getBookingRulesAction(userData.orgId)
-            setBookingRulesData(res?.bookingRules?.data);
-        }
-        fetchBookingRulsData()
-    }, [userData]);
+    if (!orgId) {
+        return <div>Oragnaization id is null</div>
+    }
 
-    return <OrgAdminBookingRules bookingRulesData={bookingRulesData} />;
+    try {
+        const res = await getBookingRulesAction(orgId)
+        const bookingRulesData = res?.bookingRules?.data ?? [];
+
+        return <OrgAdminBookingRules bookingRulesData={bookingRulesData} />
+    } catch (error) {
+        console.log(error);
+        return <div>Failed to load data</div>;
+    }
+
 }
-
 
 export default BookingRulesPage;

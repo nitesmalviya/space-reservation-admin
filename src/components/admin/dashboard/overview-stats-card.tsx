@@ -5,6 +5,13 @@ interface OverviewStatsCardProps {
     overviewStatsData: OverviewStats;
 }
 
+const colorStyles = {
+    blue: "bg-blue-100 text-blue-600",
+    green: "bg-green-100 text-green-600",
+    purple: "bg-purple-100 text-purple-600",
+    orange: "bg-orange-100 text-orange-600",
+};
+
 const OverviewStatsCard = ({ overviewStatsData }: OverviewStatsCardProps) => {
 
     const stats = [
@@ -49,7 +56,9 @@ const OverviewStatsCard = ({ overviewStatsData }: OverviewStatsCardProps) => {
                             className="bg-white rounded-lg border border-gray-200 p-4"
                         >
                             <div className="flex items-center justify-between mb-2">
-                                <div className={`p-2 rounded-lg bg-${statsItem.color}-100 text-${statsItem.color}-600`}>
+                                <div
+                                    className={`p-2 rounded-lg ${colorStyles[statsItem.color as keyof typeof colorStyles]
+                                        }`}>
                                     <Icon className="w-5 h-5" />
                                 </div>
                             </div>
