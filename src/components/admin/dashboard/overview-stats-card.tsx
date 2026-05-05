@@ -52,7 +52,7 @@ const OverviewStatsCard = ({ overviewStatsData }: OverviewStatsCardProps) => {
                     const Icon = statsItem.icon;
                     return (
                         <div
-                            key={index}
+                            key={statsItem.title}
                             className="bg-white rounded-lg border border-gray-200 p-4"
                         >
                             <div className="flex items-center justify-between mb-2">

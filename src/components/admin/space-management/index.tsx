@@ -171,7 +171,6 @@ const OrgAdminSpaces = ({
           toast.error(res?.createSpace?.message || "Failed to create space");
         }
       }
-      setIsModalOpen(false);
 
     } catch (error: any) {
       toast.error(error.message || "Unexpected error occurred");
