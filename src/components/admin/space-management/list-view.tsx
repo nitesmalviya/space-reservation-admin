@@ -64,9 +64,9 @@ export default function ListView({
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-sm text-gray-900">
-                    {space.location.floor}
+                    {space.location.name}
                   </p>
-                  <p className="text-xs text-gray-500">{space.location.wing}</p>
+                  <p className="text-xs text-gray-500">{space.location.address ?? "-"}</p>
                 </td>
                 <td className="px-5 py-4">
                   <p className="text-sm text-gray-900">
@@ -74,7 +74,8 @@ export default function ListView({
                   </p>
                 </td>
                 <td className="px-5 py-4">
-                  {space.currentOccupancy?.isOccupied ? (
+                  {space.utilization}%
+                  {/* {space.currentOccupancy?.isOccupied ? (
                     <div>
                       <div className="flex items-center gap-2 mb-1">
                         <div className="w-6 h-6 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-medium">
@@ -99,7 +100,7 @@ export default function ListView({
                     </div>
                   ) : (
                     <span className="text-sm text-gray-500">Available</span>
-                  )}
+                  )} */}
                 </td>
                 <td className="px-5 py-4">
                   <span

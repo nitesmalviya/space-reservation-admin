@@ -1,62 +1,22 @@
 import {
-    Plus,
-    Edit,
-    Power,
-  Trash2,
-  Users,
+  Edit,
+  Power,
   MapPin,
-  X,
   Clock,
   ArrowLeft,
-  Grid3x3,
-  List,
-  Search,
-  Filter,
   Calendar,
   CheckCircle2,
   UserCheck,
 } from "lucide-react";
+import type { Amenity, Space } from "@/types/space-type";
+import { formatSpaceType } from "@/utils/constant";
 
 interface SpaceDetailProps {
-  selectedSpace: Space;
   setShowDetailView: (show: boolean) => void;
-  setSelectedSpace: (space: Space | null) => void;
   handleEditSpace: (space: Space) => void;
   handleToggleStatus: (spaceId: string) => void;
-}
-
-interface Space {
-  id: string;
-  name: string;
-  type: string;
-  capacity: number;
-  location: {
-    floor: string;
-    wing: string;
-    building: string;
-  };
-  amenities: {
-    general: string[];
-    meeting: string[];
-    equipment: string[];
-  };
-  availability: {
-    startTime: string;
-    endTime: string;
-    slotDuration: number;
-    schedule: { [key: string]: boolean };
-  };
-  status: "Active" | "Inactive";
-  bookings: number;
-  utilization: number;
-  currentOccupancy?: {
-    isOccupied: boolean;
-    user?: string;
-    department?: string;
-    startTime?: string;
-    endTime?: string;
-    purpose?: string;
-  };
+  selectedSpace: Space;
+  setSelectedSpace: React.Dispatch<React.SetStateAction<Space | null>>;
 }
 
 export default function SpaceDetail({
@@ -66,6 +26,21 @@ export default function SpaceDetail({
   handleEditSpace,
   handleToggleStatus,
 }: SpaceDetailProps) {
+
+  const amenities: Amenity[] = selectedSpace?.amenities || [];
+
+  const generalAmenities = amenities.filter(
+    (a) => a.category === "GENERAL"
+  );
+
+  const meetingAmenities = amenities.filter(
+    (a) => a.category === "MEETING"
+  );
+
+  const equipmentAmenities = amenities.filter(
+    (a) => a.category === "EQUIPMENT"
+  );
+
   return (
     <div className="p-6">
       <button
@@ -91,23 +66,23 @@ export default function SpaceDetail({
                 </h1>
                 <div className="flex items-center gap-3">
                   <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
-                    {selectedSpace.type}
+                    {formatSpaceType(selectedSpace.type)}
                   </span>
                   <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      selectedSpace.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-sm ${selectedSpace.status === "Active"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
+                      }`}
                   >
                     {selectedSpace.status}
                   </span>
-                  {selectedSpace.currentOccupancy?.isOccupied && (
-                    <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-1">
-                      <UserCheck className="w-3.5 h-3.5" />
-                      Occupied
-                    </span>
-                  )}
+
+                  <span className="px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm flex items-center gap-1">
+                    <UserCheck className="w-3.5 h-3.5" />
+                    Occupied
+                  </span>
+
+
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -120,11 +95,10 @@ export default function SpaceDetail({
                 </button>
                 <button
                   onClick={() => handleToggleStatus(selectedSpace.id)}
-                  className={`px-4 py-2 border rounded-lg transition-colors text-sm ${
-                    selectedSpace.status === "Active"
-                      ? "border-orange-600 text-orange-600 hover:bg-orange-50"
-                      : "border-green-600 text-green-600 hover:bg-green-50"
-                  }`}
+                  className={`px-4 py-2 border rounded-lg transition-colors text-sm ${selectedSpace.status === "Active"
+                    ? "border-orange-600 text-orange-600 hover:bg-orange-50"
+                    : "border-green-600 text-green-600 hover:bg-green-50"
+                    }`}
                 >
                   <Power className="w-4 h-4 inline mr-2" />
                   {selectedSpace.status === "Active"
@@ -133,39 +107,6 @@ export default function SpaceDetail({
                 </button>
               </div>
             </div>
-
-            {/* Current Occupancy Alert */}
-            {selectedSpace.currentOccupancy?.isOccupied && (
-              <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <UserCheck className="w-5 h-5 text-orange-600 mt-0.5" />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-orange-900 mb-1">
-                      Currently Occupied
-                    </p>
-                    <div className="grid grid-cols-2 gap-3 text-sm text-orange-800">
-                      <div>
-                        <span className="text-orange-600">User:</span>{" "}
-                        {selectedSpace.currentOccupancy.user}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Department:</span>{" "}
-                        {selectedSpace.currentOccupancy.department}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Time:</span>{" "}
-                        {selectedSpace.currentOccupancy.startTime} -{" "}
-                        {selectedSpace.currentOccupancy.endTime}
-                      </div>
-                      <div>
-                        <span className="text-orange-600">Purpose:</span>{" "}
-                        {selectedSpace.currentOccupancy.purpose}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
 
             <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200">
               <div>
@@ -198,16 +139,16 @@ export default function SpaceDetail({
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <p className="text-xs text-gray-500 mb-1">Floor</p>
-                <p className="text-gray-900">{selectedSpace.location.floor}</p>
+                <p className="text-gray-900">{selectedSpace?.floor || "N/A"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">Wing</p>
-                <p className="text-gray-900">{selectedSpace.location.wing}</p>
+                <p className="text-gray-900">{selectedSpace?.wing || "N/A"} </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">Building</p>
                 <p className="text-gray-900">
-                  {selectedSpace.location.building}
+                  {selectedSpace?.building || "N/A"}
                 </p>
               </div>
             </div>
@@ -225,13 +166,13 @@ export default function SpaceDetail({
                   General Amenities
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {selectedSpace.amenities.general.map((amenity, idx) => (
+                  {generalAmenities.slice(0, 3).map((amenity: any) => (
                     <span
-                      key={idx}
+                      key={amenity.id}
                       className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm flex items-center gap-1"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-                      {amenity}
+                      {amenity.name}
                     </span>
                   ))}
                 </div>
@@ -242,36 +183,36 @@ export default function SpaceDetail({
                   Meeting/Conference Amenities
                 </p>
                 <div className="flex flex-wrap gap-2">
-                  {selectedSpace.amenities.meeting.map((amenity, idx) => (
+                  {meetingAmenities.map((amenity) => (
                     <span
-                      key={idx}
+                      key={amenity.id}
                       className="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-sm flex items-center gap-1"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
-                      {amenity}
+                      {amenity.name}
                     </span>
                   ))}
                 </div>
               </div>
 
-              {selectedSpace.amenities.equipment.length > 0 && (
-                <div>
-                  <p className="text-sm text-gray-600 font-medium mb-2">
-                    Equipment / Add-ons
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedSpace.amenities.equipment.map((item, idx) => (
-                      <span
-                        key={idx}
-                        className="px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm flex items-center gap-1"
-                      >
-                        <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />
-                        {item}
-                      </span>
-                    ))}
-                  </div>
+
+              <div>
+                <p className="text-sm text-gray-600 font-medium mb-2">
+                  Equipment / Add-ons
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {equipmentAmenities.map((amenity) => (
+                    <span
+                      key={amenity.id}
+                      className="px-3 py-1 bg-orange-50 text-orange-700 rounded-lg text-sm flex items-center gap-1"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5 text-orange-600" />
+                      {amenity.name}
+                    </span>
+                  ))}
                 </div>
-              )}
+              </div>
+
             </div>
           </div>
         </div>
@@ -288,14 +229,14 @@ export default function SpaceDetail({
               <div>
                 <p className="text-xs text-gray-500 mb-1">Operating Hours</p>
                 <p className="text-gray-900 font-medium">
-                  {selectedSpace.availability.startTime} -{" "}
-                  {selectedSpace.availability.endTime}
+                  {selectedSpace.startTime} -{" "}
+                  {selectedSpace.endTime}
                 </p>
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-1">Slot Duration</p>
                 <p className="text-gray-900 font-medium">
-                  {selectedSpace.availability.slotDuration} minutes
+                  {selectedSpace.slotDuration} minutes
                 </p>
               </div>
             </div>
@@ -308,25 +249,18 @@ export default function SpaceDetail({
               Weekly Schedule
             </h2>
             <div className="space-y-2">
-              {Object.entries(selectedSpace.availability.schedule).map(
-                ([day, available]) => (
-                  <div
-                    key={day}
-                    className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
-                  >
-                    <span className="text-sm text-gray-700">{day}</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs ${
-                        available
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-100 text-gray-500"
-                      }`}
-                    >
-                      {available ? "Available" : "Closed"}
-                    </span>
-                  </div>
-                ),
-              )}
+
+              <div
+
+                className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0"
+              >
+                <span className="text-sm text-gray-700">Monday</span>
+                <span
+                  className="px-2 py-0.5 rounded-full text-xs" >
+                  Available
+                </span>
+              </div>
+
             </div>
           </div>
 

@@ -1,31 +1,44 @@
-export interface DashboardPRops {
-  readonly statsData: {
-    id: string;
-    title: string;
-    value: string;
-    change: string;
-    icon: any;
-    color: string;
-  }[];
-  readonly upcomingBookings: {
-    id: string;
-    space: string;
-    employee: string;
-    date: string;
-    time: string;
-    status: string;
-  }[];
-  readonly spaceUtilization: {
-    id: string;
-    name: string;
-    utilization: number;
-    bookings: number;
-  }[];
-  readonly recentEmployees: {
-    id: string;
-    name: string;
-    email: string;
-    role: string;
-    joinDate: string;
-  }[];
+ export interface DashboardResponse {
+  statsData: StatCard[];
+  upcomingBookings: Booking[];
+  spaceUtilization: Utilization[];
+  recentEmployees: Employee[];
 }
+
+export interface OverviewStats {
+  activeSpaces: number;
+  confirmedBookingsCount: number;
+  spaceUtilization: number;
+  spacesStatus: string;
+  totalBookingsCount: number;
+  totalEmployees: number;
+  upcomingBookingsCount: number;
+  upcomingBookingsPeriod: string;
+}
+
+export interface RecentEmployee {
+  email: string;
+  id: string;
+  joinedDate: string;
+  name: string;
+  role: string;
+}
+
+export interface SpaceUtilizationItem {
+  confirmedBookingsCount: number;
+  spaceName: string;
+  totalBookingsCount: number;
+  utilizationPercentage: number;
+}
+
+export interface UpcomingBooking {
+  employeeName: string;
+  bookingDate: string;
+  endTime: string;
+  id: string;
+  spaceName: string;
+  startTime: string;
+  status: string;
+  userName: string;
+}
+ 

@@ -9,7 +9,7 @@ import {
   UserCheck,
 } from "lucide-react";
 interface GridViewProps {
- readonly spaces: Space[];
+  readonly spaces: Space[];
   readonly handleViewDetails: (space: Space) => void;
   readonly handleEditSpace: (space: Space) => void;
   readonly handleToggleStatus: (spaceId: string) => void;
@@ -40,11 +40,10 @@ export default function GridView({
             </div>
             <div className="flex flex-col items-end gap-1">
               <span
-                className={`px-2 py-1 rounded-full text-xs ${
-                  space.status === "Active"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}
+                className={`px-2 py-1 rounded-full text-xs ${space.status === "Active"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-red-100 text-red-700"
+                  }`}
               >
                 {space.status}
               </span>
@@ -94,7 +93,7 @@ export default function GridView({
             <div className="flex items-center gap-2 text-gray-600">
               <Clock className="w-4 h-4" />
               <span className="text-sm">
-                {space.availability.startTime} - {space.availability.endTime}
+                {space?.startTime} - {space?.endTime}
               </span>
             </div>
           </div>
@@ -104,10 +103,10 @@ export default function GridView({
               <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
               <div className="text-sm">
                 <p>
-                  {space.location.floor}, {space.location.wing}
+                  {space.floor ?? "-"}, {space.wing ?? "-"}
                 </p>
                 <p className="text-xs text-gray-500">
-                  {space.location.building}
+                  {space.building ?? "-"}
                 </p>
               </div>
             </div>
@@ -127,24 +126,24 @@ export default function GridView({
               ></div>
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              {space.bookings} bookings this month
+              {space.bookingsThisMonth} bookings this month
             </p>
           </div>
 
           <div className="mb-3 pb-3 border-b border-gray-200">
             <p className="text-xs text-gray-500 mb-2">Key Amenities:</p>
             <div className="flex flex-wrap gap-1">
-              {space.amenities.meeting.slice(0, 3).map((amenity, idx) => (
+              {space.amenities.slice(0, 3).map((amenity) => (
                 <span
-                  key={idx}
+                  key={amenity.id}
                   className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs"
                 >
-                  {amenity}
+                  {amenity.name}
                 </span>
               ))}
-              {space.amenities.meeting.length > 3 && (
+              {space.amenities.length > 3 && (
                 <span className="px-2 py-0.5 bg-gray-100 text-gray-600 rounded text-xs">
-                  +{space.amenities.meeting.length - 3} more
+                  +{space.amenities.length - 3} more
                 </span>
               )}
             </div>
@@ -169,11 +168,10 @@ export default function GridView({
                 e.stopPropagation();
                 handleToggleStatus(space.id);
               }}
-              className={`px-3 py-2 border rounded-lg transition-colors ${
-                space.status === "Active"
-                  ? "border-orange-600 text-orange-600 hover:bg-orange-50"
-                  : "border-green-600 text-green-600 hover:bg-green-50"
-              }`}
+              className={`px-3 py-2 border rounded-lg transition-colors ${space.status === "Active"
+                ? "border-orange-600 text-orange-600 hover:bg-orange-50"
+                : "border-green-600 text-green-600 hover:bg-green-50"
+                }`}
               title={space.status === "Active" ? "Deactivate" : "Activate"}
             >
               <Power className="w-4 h-4" />

@@ -9,6 +9,7 @@ import {
   Shield,
   Settings,
 } from "lucide-react";
+
 export const PUBLIC_PATH = {
   LOGIN: "/login",
   FORGOT_PASSWORD: "/forgot-password",
@@ -221,3 +222,36 @@ export const INDUSTRY_OPTIONS = [
   { value: "TECHNOLOGY", label: "Technology" },
   { value: "OTHER", label: "Other" },
 ];
+
+export const formatSpaceType = (type: string) => {
+  return type
+    ?.replace(/_/g, " ")
+    ?.toLowerCase()
+    ?.replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+export const formatDate = (dateString?: string | null) => {
+  if (!dateString) return "-";
+
+  const date = new Date(dateString);
+
+  if (isNaN(date.getTime())) return "-"; // invalid date safety
+
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+};
+
+export const getInitialsName = (name: string) =>
+  name
+    ?.split(" ")
+    .map((n) => n.charAt(0))
+    .join("");
+
+
+export const PAGINATION_LIMIT = {
+  LIMIT: 10 as const,
+  PAGE: 1 as const,
+};

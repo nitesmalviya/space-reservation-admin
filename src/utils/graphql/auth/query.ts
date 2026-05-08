@@ -9,15 +9,25 @@ export const SIGN_IN_MUTATION: DocumentNode = gql`
       refreshToken
       success
       user {
-        activeStatus
-        createdAt
-        email
+      id
+      name
+      orgId
+      email
+      createdAt
+      activeStatus
+      role
+      updatedAt
+      phoneNumber
+      profileImageUrl
+      subId
+      organization {
         id
+        createdAt
+        employeeCount
+        employeesCount
         name
-        phoneNumber
-        profileImageUrl
-        role
       }
+    }
     }
   }
 `;
