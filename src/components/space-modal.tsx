@@ -5,7 +5,6 @@ import SimpleReactValidator from "simple-react-validator";
 import { getAllSpaceAction } from "@/utils/graphql/space/action";
 import { useAppSelector } from "@/store/hooks";
  
-
 export interface SpaceFormData {
   amenityIds: string[] | undefined;
   amenities: any;
@@ -28,7 +27,6 @@ interface NewSpaceModalProps {
   loading?: boolean;
   onClose: () => void;
   isOpen: boolean;
-
 }
 
 const emptyForm: SpaceFormData = {
@@ -56,10 +54,11 @@ const NewSpaceModal = ({
 }: NewSpaceModalProps) => {
 
   const userData = useAppSelector((state) => state.auth.user);
-  console.log(userData, "User Data")
+ 
 
   const [formData, setFormData] = useState<SpaceFormData>(emptyForm);
   const [, forceUpdate] = useState(0);
+  
   const [loading, setLoading] = useState(false);
   const [amenitiesList, setAmenitiesList] = useState<any[]>([]);
 
@@ -119,7 +118,7 @@ const NewSpaceModal = ({
         description: selectedSpace.description || "",
         amenities: [],
       });
-    } else {
+     } else {
       setFormData(emptyForm);
     }
   }, [selectedSpace]);
@@ -135,7 +134,6 @@ const NewSpaceModal = ({
   const equipmentAmenities = amenitiesList.filter(
     (item) => item.category === "EQUIPMENT"
   );
-
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

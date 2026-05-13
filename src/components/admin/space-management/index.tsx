@@ -96,7 +96,6 @@ const OrgAdminSpaces = ({
     setDeleteId(id);
     setConfirmAction("delete");
   };
-
   const handleConfirmAction = async () => {
     if (confirmAction === "delete" && deleteId) {
       try {

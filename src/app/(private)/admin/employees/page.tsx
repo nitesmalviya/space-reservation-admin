@@ -1,96 +1,16 @@
 import { Employee, OrgAdminEmployees } from "@/components/admin/employees";
+import { getAllUsersAction } from "@/utils/graphql/users/actions";
 
-const employees: Employee[] = [
-  {
-    id: "1",
-    firstName: "John",
-    lastName: "Smith",
-    name: "John Smith",
-    email: "john.smith@bitcot.com",
-    role: "Admin",
-    status: "Active",
-    joinDate: "Jan 15, 2024",
-    bookings: 45,
-  },
-  {
-    id: "2",
-    firstName: "Alex",
-    lastName: "Martinez",
-    name: "Alex Martinez",
-    email: "alex.m@bitcot.com",
-    role: "Manager",
-    status: "Active",
-    joinDate: "Feb 3, 2024",
-    bookings: 38,
-  },
-  {
-    id: "3",
-    firstName: "Emma",
-    lastName: "Wilson",
-    name: "Emma Wilson",
-    email: "emma.w@bitcot.com",
-    role: "User",
-    status: "Active",
-    joinDate: "Mar 12, 2024",
-    bookings: 22,
-  },
-  {
-    id: "4",
-    firstName: "David",
-    lastName: "Lee",
-    name: "David Lee",
-    email: "david.l@bitcot.com",
-    role: "User",
-    status: "Inactive",
-    joinDate: "Apr 8, 2024",
-    bookings: 15,
-  },
-  {
-    id: "5",
-    firstName: "Sophie",
-    lastName: "Chen",
-    name: "Sophie Chen",
-    email: "sophie.c@bitcot.com",
-    role: "User",
-    status: "Active",
-    joinDate: "May 20, 2024",
-    bookings: 31,
-  },
-  {
-    id: "6",
-    firstName: "Michael",
-    lastName: "Park",
-    name: "Michael Park",
-    email: "michael.p@bitcot.com",
-    role: "Manager",
-    status: "Active",
-    joinDate: "Jun 5, 2024",
-    bookings: 28,
-  },
-  {
-    id: "7",
-    firstName: "Lisa",
-    lastName: "Anderson",
-    name: "Lisa Anderson",
-    email: "lisa.a@bitcot.com",
-    role: "User",
-    status: "Active",
-    joinDate: "Jul 18, 2024",
-    bookings: 19,
-  },
-  {
-    id: "8",
-    firstName: "Ryan",
-    lastName: "Thomas",
-    name: "Ryan Thomas",
-    email: "ryan.t@bitcot.com",
-    role: "User",
-    status: "Active",
-    joinDate: "Aug 22, 2024",
-    bookings: 12,
-  },
-];
+const AdminEmployeesPage = async () => {
+  const employeesRes = await getAllUsersAction({
+    page: 1,
+    limit: 10,
+    search: "",
+  });
 
-export default function AdminEmployeesPage() {
-  return <OrgAdminEmployees employees={employees} />;
+  const employeesData = employeesRes?.users ?? [];
+
+  return <OrgAdminEmployees employeesData={employeesData} />;
 }
+
+export default AdminEmployeesPage;

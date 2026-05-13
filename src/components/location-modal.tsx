@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { X } from "lucide-react";
-import { Location } from "./admin/organization-profile";
+import SimpleReactValidator from "simple-react-validator";
+import { CreateLocationInput } from "@/types/location";
+import { useAppSelector } from "@/store/hooks";
+
 
 const LOCATION_TYPES = [
   "Head Office",
@@ -13,61 +16,102 @@ const LOCATION_TYPES = [
   "Other",
 ];
 
-interface LocationModalProps {
-  readonly isOpen: boolean;
-  readonly onClose: () => void;
-  readonly onSubmit: (data: Omit<Location, "id">) => void;
-  readonly selectedLocation?: Location | null;
-  readonly mode: "create" | "edit";
-}
-
 const emptyForm = {
   name: "",
-  type: LOCATION_TYPES[0],
   address: "",
-  city: "",
-  state: "",
-  pincode: "",
-  phone: "",
+  label: "",
+  contactNumber: "",
 };
 
-export default function LocationModal({
+interface LocationFormData {
+  name: string;
+  address: string;
+  label: string;
+  contactNumber: string;
+}
+
+interface LocationModalProps {
+  selectedLocation?: any;
+  onSave: (data: CreateLocationInput) => void;
+  loading?: boolean;
+  onClose: () => void;
+  isOpen: boolean;
+}
+
+const LocationModal = ({
+  selectedLocation,
   isOpen,
   onClose,
-  onSubmit,
-  selectedLocation,
-  mode,
-}: LocationModalProps) {
-  const [formData, setFormData] = useState(emptyForm);
+  onSave,
+  loading: isSubmitting = false,
+}: LocationModalProps) => {
+
+  const userData = useAppSelector((state) => state.auth.user);
+
+  const [formData, setFormData] = useState<LocationFormData>(emptyForm);
+  const [, forceUpdate] = useState(0);
+
+  const validator = useRef(
+    new SimpleReactValidator({
+      className: "text-red-500 text-xs mt-1",
+    })
+  ).current;
 
   // Populate form when editing
   useEffect(() => {
-    if (mode === "edit" && selectedLocation) {
+    if (selectedLocation) {
       setFormData({
-        name: selectedLocation.name,
-        type: selectedLocation.type,
-        address: selectedLocation.address,
-        city: selectedLocation.city,
-        state: selectedLocation.state,
-        pincode: selectedLocation.pincode,
-        phone: selectedLocation.phone,
+        name: selectedLocation.name || "",
+        label: selectedLocation.label || "",
+        address: selectedLocation.address || "",
+        contactNumber: selectedLocation.contactNumber || "",
       });
     } else {
       setFormData(emptyForm);
     }
-  }, [mode, selectedLocation, isOpen]);
+  }, [selectedLocation, isOpen]);
 
   if (!isOpen) return null;
 
-  const set =
-    (field: keyof typeof emptyForm) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
-      setFormData((prev) => ({ ...prev, [field]: e.target.value }));
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let { name, value } = e.target;
+
+    if (name === "contactNumber") {
+      value = value.replace(/\D/g, "");
+    }
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+  const mapToPayload = (
+    data: LocationFormData
+  ): CreateLocationInput => ({
+    name: data.name,
+    address: data.address,
+    label: data.label,
+    contactNumber: data.contactNumber,
+    orgId: userData?.orgId || "",
+  });
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
-    onClose();
+
+    if (validator.allValid()) {
+      const payload = mapToPayload(formData);
+      onSave(payload);
+      setFormData(emptyForm);
+      onClose();
+    } else {
+      validator.showMessages();
+      forceUpdate((prev) => prev + 1);
+    }
   };
 
   const inputCls =
@@ -79,7 +123,7 @@ export default function LocationModal({
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b border-gray-200 shrink-0">
           <h2 className="text-gray-900 text-lg">
-            {mode === "create" ? "Add New Location" : "Edit Location"}
+            {selectedLocation ? "Edit Location" : "Add New Location"}
           </h2>
           <button
             type="button"
@@ -104,14 +148,35 @@ export default function LocationModal({
               <input
                 id="loc-name"
                 type="text"
+                name="name"
                 value={formData.name}
-                onChange={set("name")}
+                onChange={handleChange}
                 className={inputCls}
                 placeholder="e.g. Bitcot Tower"
                 required
               />
+              {validator.message("name", formData.name, "required|min:5")}
             </div>
             <div>
+              <label
+                htmlFor="loc-label"
+                className="block text-gray-700 mb-2 text-sm"
+              >
+                Label *
+              </label>
+              <input
+                id="loc-label"
+                type="text"
+                name="label"
+                value={formData.label}
+                onChange={handleChange}
+                className={inputCls}
+                placeholder="Enter label for location"
+                required
+              />
+              {validator.message("label", formData.label, "required|min:5")}
+            </div>
+            {/* <div>
               <label
                 htmlFor="loc-type"
                 className="block text-gray-700 mb-2 text-sm"
@@ -120,8 +185,9 @@ export default function LocationModal({
               </label>
               <select
                 id="loc-type"
+                name="type"
                 value={formData.type}
-                onChange={set("type")}
+                onChange={handleChange}
                 className={inputCls}
                 required
               >
@@ -131,7 +197,7 @@ export default function LocationModal({
                   </option>
                 ))}
               </select>
-            </div>
+            </div> */}
           </div>
 
           {/* Address */}
@@ -145,70 +211,15 @@ export default function LocationModal({
             <input
               id="loc-address"
               type="text"
+              name="address"
               value={formData.address}
-              onChange={set("address")}
+              onChange={handleChange}
               className={inputCls}
               placeholder="Enter street address"
               required
             />
+            {validator.message("address", formData.address, "required|min:10")}
           </div>
-
-          {/* City / State / Pincode */}
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <label
-                htmlFor="loc-city"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                City *
-              </label>
-              <input
-                id="loc-city"
-                type="text"
-                value={formData.city}
-                onChange={set("city")}
-                className={inputCls}
-                placeholder="City"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="loc-state"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                State *
-              </label>
-              <input
-                id="loc-state"
-                type="text"
-                value={formData.state}
-                onChange={set("state")}
-                className={inputCls}
-                placeholder="State"
-                required
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="loc-pincode"
-                className="block text-gray-700 mb-2 text-sm"
-              >
-                Pincode *
-              </label>
-              <input
-                id="loc-pincode"
-                type="text"
-                value={formData.pincode}
-                onChange={set("pincode")}
-                className={inputCls}
-                placeholder="000000"
-                maxLength={10}
-                required
-              />
-            </div>
-          </div>
-
           {/* Phone */}
           <div>
             <label
@@ -218,14 +229,17 @@ export default function LocationModal({
               Contact Phone *
             </label>
             <input
-              id="loc-phone"
+              id="loc-contactNumber"
+              name="contactNumber"
               type="tel"
-              value={formData.phone}
-              onChange={set("phone")}
+              value={formData.contactNumber}
+              onChange={handleChange}
               className={inputCls}
               placeholder="+91 00000 00000"
+              maxLength={12}
               required
             />
+            {validator.message("contactNumber", formData.contactNumber, "required|numeric|min:10|max:10")}
           </div>
 
           {/* Footer actions */}
@@ -234,7 +248,7 @@ export default function LocationModal({
               type="submit"
               className="px-6 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
             >
-              {mode === "create" ? "Add Location" : "Save Changes"}
+              {isSubmitting ? "Saving..." : "Save Location"}
             </button>
             <button
               type="button"
@@ -249,3 +263,6 @@ export default function LocationModal({
     </div>
   );
 }
+
+
+export default LocationModal;

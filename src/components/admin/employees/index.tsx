@@ -1,33 +1,43 @@
 "use client";
-import { useState } from "react";
-import { Plus, Edit, Power, Trash2 } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Plus, Edit, Power, Trash2, Table } from "lucide-react";
 import EmployeeModal from "../../employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import SearchBox from "@/components/SearchBox";
+import EmployeesStats from "./employees-stats";
+import { debounce } from "@/utils/common-service";
+import { getAllUsersAction, removeUserAction, updateUserAction } from "@/utils/graphql/users/actions";
+import { toast } from "sonner";
+import { CreateUserInput, UpdateUserInput } from "@/types/users-type";
+import TableRow from "./table-row";
 
 export interface Employee {
   id: string;
   name: string;
-  firstName: string;
-  lastName: string;
   email: string;
   role: string;
-  status: "Active" | "Inactive";
-  joinDate: string;
-  bookings: number;
+  createdAt: string;
+  bookingCount: number;
+  activeStatus: string;
 }
 
 interface OrgAdminEmployeesProps {
-  readonly employees: Employee[];
+  employeesData: Employee[];
 }
 
-export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
+export function OrgAdminEmployees({ employeesData }: OrgAdminEmployeesProps) {
+
+  const [employeeList, setEmployeeList] = useState<Employee[]>(employeesData);
+  const [loading, setLoading] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showEmployeeModal, setShowEmployeeModal] = useState(false);
   const [formState, setFormState] = useState<"create" | "update">("create");
   const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(
     null,
   );
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const { activeEmployees, newThisMonth, totalEmployees } = employeeList?.stats || {};
 
   // Confirmation modal state
   const [confirmAction, setConfirmAction] = useState<
@@ -35,39 +45,95 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
   >(null);
   const [empToAct, setEmpToAct] = useState<Employee | null>(null);
 
-  const filteredEmployees = employees.filter(
-    (emp) =>
+  const filteredEmployees = employeeList?.users?.filter(
+    (emp: Employee) =>
       emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       emp.role.toLowerCase().includes(searchTerm.toLowerCase()),
   );
+
+  const handleEditEmployee = (employee: UpdateUserInput) => {
+    setSelectedEmployee(employee);
+    setIsModalOpen(true);
+  };
 
   const handleToggleStatus = (employee: Employee) => {
     setEmpToAct(employee);
     setConfirmAction("toggle");
   };
 
-  const handleDeleteEmployee = (employee: Employee) => {
-    setEmpToAct(employee);
+  // Delete employee
+  const handleDeleteEmployee = (id: string) => {
+    setDeleteId(id);
     setConfirmAction("delete");
   };
+  const handleConfirmAction = async () => {
+    if (confirmAction === "delete" && deleteId) {
+      setLoading(true);
+      try {
 
-  const handleSubmitEmployee = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: wire up add/update API call
-    setShowEmployeeModal(false);
-  };
+        const res = await removeUserAction({ id: deleteId });
+         
+        if (res?.removeUserById?.success) {
+          toast.success(res.removeUserById.message);
 
-  const handleConfirmAction = () => {
-    if (!empToAct) return;
-    if (confirmAction === "delete") {
-      // TODO: call delete API for empToAct.id
-    } else if (confirmAction === "toggle") {
-      // TODO: call toggle status API for empToAct.id
+          const updatedList = await getAllUsersAction({}); // Fetch updated list after edit
+          setEmployeeList(updatedList.users);
+        } else {
+          toast.error(res?.removeUserById?.message || "Failed to delete user");
+        }
+      } catch (error: any) {
+        toast.error(error.message || "Unexpected error occurred");
+      }
+      finally {
+        setLoading(false);
+        setConfirmAction(null);
+        setDeleteId(null);
+      }
     }
-    setConfirmAction(null);
-    setEmpToAct(null);
   };
+
+
+  const handleAddEmployee = async (newEmployee: CreateUserInput) => {
+    try {
+      setLoading(true);
+      if (selectedEmployee) {
+        const res = await updateUserAction({ id: selectedEmployee?.id, ...newEmployee });
+        debugger;
+        if (res?.updateUser?.success) {
+          toast.success(res.updateUser.message);
+
+          const updatedList = await getAllUsersAction({}); // Fetch updated list after edit
+          setEmployeeList(updatedList.users);
+
+          setIsModalOpen(false);
+          setSelectedEmployee(null);
+        } else {
+          toast.error(res?.updateUser?.message || "Failed to update user");
+        }
+      } else {
+        // TODO: Implement add employee logic
+        console.log("Add employee logic to be implemented", newEmployee);
+
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+
+  };
+
+
+
+  // Search query
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setSearchTerm(search);
+    }, 500),
+    []
+  )
+
 
   return (
     <div className="p-6">
@@ -83,7 +149,7 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
             setFormState("create");
             setSelectedEmployee(null);
 
-            setShowEmployeeModal(true);
+            setIsModalOpen(true);
           }}
           className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
         >
@@ -93,29 +159,17 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Total Employees</p>
-          <p className="text-gray-900 text-xl">45</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">Active Employees</p>
-          <p className="text-gray-900 text-xl">42</p>
-        </div>
-        <div className="bg-white rounded-lg border border-gray-200 p-4">
-          <p className="text-xs text-gray-600 mb-1">New This Month</p>
-          <p className="text-gray-900 text-xl">3</p>
-        </div>
-      </div>
-
+      <EmployeesStats
+        activeEmployees={activeEmployees}
+        newThisMonth={newThisMonth}
+        totalEmployees={totalEmployees} />
       {/* Employee List */}
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-4 border-b border-gray-200">
           <div className="p-3  border-gray-200">
             <SearchBox
-              value={searchTerm}
-              onChange={setSearchTerm}
-              placeholder="Search employees..."
+              onSearchChange={handleDebounce}
+              placeholder="Search workspaces..."
             />
           </div>
 
@@ -148,88 +202,12 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
               </thead>
               <tbody className="divide-y divide-gray-200">
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-2.5">
-                        <div className="w-8 h-8 bg-orange-100 text-orange-600 rounded-full flex items-center justify-center text-xs font-medium">
-                          {employee.name
-                            .split(" ")
-                            .map((n) => n[0])
-                            .join("")}
-                        </div>
-                        <span className="text-gray-900 text-sm">
-                          {employee.name}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.email}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${employee.role === "Admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : employee.role === "Manager"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                          }`}
-                      >
-                        {employee.role}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.joinDate}
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 text-sm">
-                      {employee.bookings}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${employee.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                          }`}
-                      >
-                        {employee.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => {
-                            setFormState("update");
-                            setSelectedEmployee(employee);
-                            setShowEmployeeModal(true);
-                          }}
-                          className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Employee"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleToggleStatus(employee)}
-                          className={`p-1.5 rounded-lg transition-colors ${employee.status === "Active"
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-green-600 hover:bg-green-50"
-                            }`}
-                          title={
-                            employee.status === "Active"
-                              ? "Deactivate"
-                              : "Activate"
-                          }
-                        >
-                          <Power className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEmployee(employee)}
-                          className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
+                  <TableRow
+                    key={employee.id}
+                    employee={employee}
+                    handleEditEmployee={handleEditEmployee}
+                    handleToggleStatus={handleToggleStatus}
+                    handleDeleteEmployee={handleDeleteEmployee} />
                 ))}
               </tbody>
             </table>
@@ -237,47 +215,33 @@ export function OrgAdminEmployees({ employees }: OrgAdminEmployeesProps) {
         </div>
 
         {/*  Employee Modal */}
-        {showEmployeeModal && (
-          <EmployeeModal
-            showEmployeeModal={showEmployeeModal}
-            setShowEmployeeModal={() => setShowEmployeeModal(false)}
-            handleSubmitEmployee={handleSubmitEmployee}
-            state={formState}
-            selectedEmployee={selectedEmployee}
-          />
-        )}
+
+        <EmployeeModal
+          selectedEmployee={selectedEmployee}
+          onSave={handleAddEmployee}
+          loading={loading}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedEmployee(null);
+          }}
+
+        />
+
 
         {/* Delete / Status Confirmation Modal */}
         <ConfirmationModal
           isOpen={confirmAction !== null}
           onClose={() => {
             setConfirmAction(null);
-            setEmpToAct(null);
+            setDeleteId(null);
           }}
           onConfirm={handleConfirmAction}
-          title={
-            confirmAction === "delete"
-              ? "Delete Employee"
-              : empToAct?.status === "Active"
-                ? "Deactivate Employee"
-                : "Activate Employee"
-          }
-          description={
-            confirmAction === "delete"
-              ? `Are you sure you want to delete "${empToAct?.name}"? This action cannot be undone.`
-              : empToAct?.status === "Active"
-                ? `Are you sure you want to deactivate "${empToAct?.name}"? They will lose access.`
-                : `Are you sure you want to activate "${empToAct?.name}"? They will regain access.`
-          }
-          confirmLabel={
-            confirmAction === "delete"
-              ? "Delete"
-              : empToAct?.status === "Active"
-                ? "Deactivate"
-                : "Activate"
-          }
+          title="Delete Employee"
+          description="Are you sure you want to delete this employee? This action cannot be undone."
+          confirmLabel="Yes, Delete"
           cancelLabel="Cancel"
-          variant={confirmAction === "delete" ? "danger" : "info"}
+          variant="danger"
         />
       </div>
     </div>

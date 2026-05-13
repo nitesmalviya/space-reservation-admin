@@ -11,33 +11,29 @@ import {
 } from "lucide-react";
 import LocationModal from "../../location-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { CreateLocationInput, Location } from "@/types/location";
+import { createLocationAction, getLocationsByOrgAction, updateLocationAction } from "@/utils/graphql/locations/action";
+import { toast } from "sonner";
 
-export interface Location {
-  id: string;
-  name: string;
-  type: string;
-  address: string;
-  city: string;
-  state: string;
-  pincode: string;
-  phone: string;
-}
+
 interface OrgAdminProfileProps {
-  readonly locations: Location[];
+  readonly locationsData: Location[];
 }
 
-export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
+export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
   const [orgName, setOrgName] = useState("Bitcot Technology");
   const [orgEmail, setOrgEmail] = useState("contact@bitcot.com");
   const [orgDomain, setOrgDomain] = useState("bitcot.com");
 
   // Location modal state
-  const [locationList, setLocationList] = useState<Location[]>(locations);
-  const [modalOpen, setModalOpen] = useState(false);
+  const [locationList, setLocationList] = useState<Location[]>(locationsData);
+  const [loading, setLoading] = useState(false);
   const [modalMode, setModalMode] = useState<"create" | "edit">("create");
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
 
   // Delete confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -48,27 +44,61 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
   const openCreateModal = () => {
     setModalMode("create");
     setSelectedLocation(null);
-    setModalOpen(true);
+    setIsModalOpen(true);
   };
 
   const openEditModal = (location: Location) => {
     setModalMode("edit");
     setSelectedLocation(location);
-    setModalOpen(true);
+    setIsModalOpen(true);
   };
 
-  const handleLocationSubmit = (data: Omit<Location, "id">) => {
-    if (modalMode === "create") {
-      const newLocation: Location = { ...data, id: Date.now().toString() };
-      setLocationList((prev) => [...prev, newLocation]);
-    } else if (modalMode === "edit" && selectedLocation) {
-      setLocationList((prev) =>
-        prev.map((loc) =>
-          loc.id === selectedLocation.id ? { ...loc, ...data } : loc,
-        ),
-      );
+
+  const handleAddLocation = async (newLocation: CreateLocationInput) => {
+    try {
+      setLoading(true);
+
+      if (selectedLocation) {
+         
+        const res = await updateLocationAction({ id: selectedLocation.id, ...newLocation });
+
+        if (res?.updateLocation.success) {
+          toast.success(res.updateLocation.message);
+
+          const refreshedList = await getLocationsByOrgAction({
+            page: 1,
+            limit: 10,
+          });
+          setLocationList(refreshedList?.locationsByOrg?.locations)
+
+          setSelectedLocation(null);
+        } else {
+          toast.error(res?.updateLocation?.message || "Failed to update location");
+        }
+
+      } else {
+        const res = await createLocationAction(newLocation);
+        debugger
+        if (res?.createLocation.success) {
+          toast.success(res.createLocation.message);
+
+          const refreshedList = await getLocationsByOrgAction({
+            page: 1,
+            limit: 10,
+          });
+          setLocationList(refreshedList?.locationsByOrg?.locations);
+
+          setSelectedLocation(null)
+        } else {
+          toast.error(res?.createLocation?.message || "Failed to create space");
+        }
+      }
+    } catch (error) {
+      console.error("Error adding/updating location:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }
 
   const requestDeleteLocation = (location: Location) => {
     setLocationToDelete(location);
@@ -193,7 +223,7 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
                   </div>
                   <div>
                     <h3 className="text-gray-900 text-sm font-medium">
-                      {location.name}
+                      {location.name ?? "-"}
                     </h3>
                     <p className="text-xs text-gray-500">{location.type}</p>
                   </div>
@@ -221,14 +251,14 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
                   <p className="text-xs text-gray-500 mb-1">Address</p>
                   <p className="text-sm text-gray-900">{location.address}</p>
                   <p className="text-sm text-gray-900">
-                    {location.city}, {location.state} - {location.pincode}
+                    {location.city ?? "-"}, {location.state ?? "-"} - {location.pincode ?? "-"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Contact</p>
                   <div className="flex items-center gap-2 text-sm text-gray-900">
                     <Phone className="w-3.5 h-3.5 text-gray-400" />
-                    {location.phone}
+                    {location.contactNumber ?? "-"}
                   </div>
                 </div>
               </div>
@@ -249,11 +279,14 @@ export function OrgAdminProfile({ locations }: OrgAdminProfileProps) {
 
       {/* Location Modal */}
       <LocationModal
-        isOpen={modalOpen}
-        onClose={() => setModalOpen(false)}
-        onSubmit={handleLocationSubmit}
         selectedLocation={selectedLocation}
-        mode={modalMode}
+        onSave={handleAddLocation}
+        isOpen={isModalOpen}
+        loading={loading}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedLocation(null);
+        }}
       />
 
       {/* Delete Confirmation Modal */}
