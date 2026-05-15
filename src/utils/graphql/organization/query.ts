@@ -132,3 +132,41 @@ export const REMOVE_ORGANIZATION_QUERY: DocumentNode = gql`
     }
   }
 `;
+
+
+
+// Update organization
+export const UPDATE_ORGANIZATION_DETAILS_QUERY: DocumentNode = gql`
+mutation UpdateOrganization($updateOrganizationInput: UpdateOrganizationInput!) {
+  updateOrganization(updateOrganizationInput: $updateOrganizationInput) {
+    message
+    success
+    organization {
+      domain
+      contactEmail
+      id
+      logoUrl
+      name
+    }
+  }
+}
+  `;
+
+
+  // Singele organiation details
+
+export const GET_ORGANIZATION_QUERY: DocumentNode = gql`
+  query Organization($organizationId: String!) {
+    organization(id: $organizationId) {
+      message
+      organization {
+       id
+        domain
+        logoUrl
+        name
+        contactEmail
+      }
+      success
+    }
+  }
+`;

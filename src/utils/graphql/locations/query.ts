@@ -29,8 +29,17 @@ mutation CreateLocation($createLocationInput: CreateLocationInput!) {
   }
 }
 `;
+// Remove location
+export const REMOVE_LOCATION_MUTATION: DocumentNode = gql`
+mutation RemoveLocation($removeLocationId: String!) {
+  removeLocation(id: $removeLocationId) {
+    message
+    success
+  }
+}
+`;
 
-
+// Update location
 export const UPDATE_LOCATION_MUTATION: DocumentNode = gql`
 mutation UpdateLocation($updateLocationInput: UpdateLocationInput!) {
   updateLocation(updateLocationInput: $updateLocationInput) {

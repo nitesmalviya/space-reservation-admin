@@ -4,7 +4,9 @@ import {
   CREATE_ORGANIZATION,
   GET_ALL_ORGANIZATIONS_QUERY,
   GET_ORGANIZATION_BY_ID_QUERY,
+  GET_ORGANIZATION_QUERY,
   REMOVE_ORGANIZATION_QUERY,
+  UPDATE_ORGANIZATION_DETAILS_QUERY,
   UPDATE_ORGANIZATION_QUERY,
 } from "./query";
 import {
@@ -14,6 +16,8 @@ import {
   CreateOrganizationResponse,
   DeleteOrganizationByIdResponse,
   OrganizationByIdResponse,
+  OrganizationInput,
+  OrganizationResponse,
   UpdateOrganizationByIdResponse,
   UpdateOrganizationInput,
 } from "@/types/organization";
@@ -52,7 +56,6 @@ export const getOrganizationByIdAction = async (variables: {
 };
 
 //update organization
-
 export const updateOrganizationByIdAction = async (
   variables: UpdateOrganizationInput,
 ): Promise<UpdateOrganizationByIdResponse> => {
@@ -69,6 +72,31 @@ export const removeOrganizationByIdAction = async (variables: {
 }): Promise<DeleteOrganizationByIdResponse> => {
   const res = await fetchGraphQLMutation<DeleteOrganizationByIdResponse>(
     REMOVE_ORGANIZATION_QUERY,
+    { ...variables },
+  );
+  return res;
+};
+
+
+
+//Update organization
+export const updateOrganizationAction = async (
+  variables: UpdateOrganizationInput,
+): Promise<UpdateOrganizationByIdResponse> => {
+  const res = await fetchGraphQLMutation<UpdateOrganizationInput>(
+    UPDATE_ORGANIZATION_DETAILS_QUERY,
+    { updateOrganizationInput: { ...variables } },
+  );
+  return res;
+};
+
+
+// Get single organization action
+export const getOrganizationAction = async (
+  variables: OrganizationInput,
+): Promise<OrganizationResponse> => {
+  const res = await fetchGraphQLQuery<OrganizationResponse>(
+    GET_ORGANIZATION_QUERY,
     { ...variables },
   );
   return res;

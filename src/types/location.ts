@@ -1,4 +1,7 @@
+import { JSX } from "react/jsx-runtime";
+
 export interface Location {
+    length: number;
     id: string;
     name: string;
     address: string;
@@ -14,6 +17,7 @@ export interface LocationsInput {
 }
 
 export interface LocationsByOrgData {
+    length: ReactNode;
     currentPage: number;
     locations: Location[];
     message: string;
@@ -90,4 +94,18 @@ export interface RemoveLocationResponse {
             message: string;
         };
     };
+}
+
+
+export interface LocationByOrgType {
+    id: string;
+    name: string;
+    label: string;
+    contactNumber: string;
+    address: string;
+    timezone: string;
+    createdAt: string;
+    updatedAt: string;
+    length: number;
+    orgId: string;
 }

@@ -1,29 +1,29 @@
 "use client";
-import { useState } from "react";
+
+import { useEffect, useState } from "react";
 import {
   Building2,
-  MapPin,
-  Phone,
   Upload,
-  Plus,
-  Edit,
-  Trash2,
+  Edit
 } from "lucide-react";
 import LocationModal from "../../location-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
-import { CreateLocationInput, Location } from "@/types/location";
-import { createLocationAction, getLocationsByOrgAction, updateLocationAction } from "@/utils/graphql/locations/action";
+import { CreateLocationInput, Location, LocationByOrgType, LocationsByOrgData } from "@/types/location";
+import { createLocationAction, getLocationsByOrgAction, removeLocationAction, updateLocationAction } from "@/utils/graphql/locations/action";
 import { toast } from "sonner";
-
+import LocationList from "./location-list";
+import OrganizationDetails from "./organization-details";
+import { updateOrganizationAction } from "@/utils/graphql/organization/action";
+import { Organization, OrganizationResponse, UpdateOrganizationInput } from "@/types/organization";
+import { useAppSelector } from "@/store/hooks";
 
 interface OrgAdminProfileProps {
-  readonly locationsData: Location[];
+   readonly locationsData: LocationByOrg[];
+  readonly organizationData: Organization | null;
 }
 
-export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
-  const [orgName, setOrgName] = useState("Bitcot Technology");
-  const [orgEmail, setOrgEmail] = useState("contact@bitcot.com");
-  const [orgDomain, setOrgDomain] = useState("bitcot.com");
+export function OrgAdminProfile({ locationsData,organizationData  }: OrgAdminProfileProps) {
+  const userData = useAppSelector((state) => state.auth.user);
 
   // Location modal state
   const [locationList, setLocationList] = useState<Location[]>(locationsData);
@@ -32,14 +32,20 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
+  // For organization profile
+  const [selectedOraganizationDetails, setSelectedOraganizationDetails] =
+    useState<Organization | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-
   // Delete confirmation modal state
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [locationToDelete, setLocationToDelete] = useState<Location | null>(
-    null,
-  );
+  const [confirmOpen, setConfirmOpen] = useState<"delete" | null>(null);
+  // Confirmation modal state
+  const [locationToDelete, setLocationToDelete] = useState<LocationByOrgType | null>(null);
+
+  useEffect(() => {
+    if (organizationData) {
+      setSelectedOraganizationDetails(organizationData);
+    }
+  }, [organizationData]);
 
   const openCreateModal = () => {
     setModalMode("create");
@@ -53,13 +59,36 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
     setIsModalOpen(true);
   };
 
+  // For update organization profile
+  const handleUpdateOrganizationProfile = async (data: UpdateOrganizationInput) => {
+    try {
+      setLoading(true)
+      if (selectedOraganizationDetails) {
+        const res = await updateOrganizationAction({ data });
+        debugger
+        if (res?.updateOrganization?.success) {
+          toast.success(res.updateOrganization.message);
 
+
+        } else {
+          toast.error(res?.updateOrganization.message);
+        }
+      }
+
+    } catch (error: any) {
+      toast.error(error?.message || "Unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // For Add location
   const handleAddLocation = async (newLocation: CreateLocationInput) => {
     try {
       setLoading(true);
 
       if (selectedLocation) {
-         
+
         const res = await updateLocationAction({ id: selectedLocation.id, ...newLocation });
 
         if (res?.updateLocation.success) {
@@ -78,7 +107,7 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
 
       } else {
         const res = await createLocationAction(newLocation);
-        debugger
+
         if (res?.createLocation.success) {
           toast.success(res.createLocation.message);
 
@@ -100,19 +129,45 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
     }
   }
 
-  const requestDeleteLocation = (location: Location) => {
+  // For remove location
+  const requestDeleteLocation = (location: LocationsByOrgData) => {
     setLocationToDelete(location);
-    setConfirmOpen(true);
+    setConfirmOpen("delete");
   };
 
-  const confirmDeleteLocation = () => {
+  const confirmDeleteLocation = async () => {
+
     if (locationToDelete) {
-      setLocationList((prev) =>
-        prev.filter((loc) => loc.id !== locationToDelete.id),
-      );
-      setLocationToDelete(null);
+      try {
+        setLoading(true);
+
+        const res = await removeLocationAction({
+          removeLocationId: locationToDelete.id
+        });
+        debugger
+        if (res?.removeLocation?.success) {
+          toast.success(res.removeLocation.message);
+
+          const refreshedList = await getLocationsByOrgAction({
+            page: 1,
+            limit: 10,
+          });
+          setLocationList(refreshedList?.locationsByOrg?.locations);
+
+        } else {
+          toast.error(res?.removeLocation?.message || "Failed to delete location");
+        }
+
+      } catch (error: any) {
+        toast.error(error.message || "An error occurred while deleting the location");
+      } finally {
+        setLoading(false);
+        setConfirmOpen(null);
+        setLocationToDelete(null);
+      }
+
     }
-    setConfirmOpen(false);
+
   };
 
   return (
@@ -125,157 +180,21 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
       </div>
 
       {/* Organization Details */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5 mb-5">
-        <div className="flex items-center justify-between mb-5">
-          <h2 className="text-gray-900 text-base">Organization Details</h2>
-          <button className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-            <Edit className="w-4 h-4 inline mr-2" />
-            Edit
-          </button>
-        </div>
+      <OrganizationDetails
+        onSave={handleUpdateOrganizationProfile}
+        selectedOraganizationDetails={selectedOraganizationDetails}
+        orgId={userData?.orgId}
+      />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-          {/* Logo Upload */}
-          <div className="md:col-span-2">
-            <label className="block text-gray-700 mb-2 text-sm">
-              Organization Logo
-            </label>
-            <div className="flex items-center gap-4">
-              <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center border-2 border-dashed border-gray-300">
-                <Building2 className="w-10 h-10 text-gray-400" />
-              </div>
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm">
-                <Upload className="w-4 h-4" />
-                Upload Logo
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-2 text-sm">
-              Organization Name
-            </label>
-            <input
-              type="text"
-              value={orgName}
-              onChange={(e) => setOrgName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-2 text-sm">
-              Contact Email
-            </label>
-            <input
-              type="email"
-              value={orgEmail}
-              onChange={(e) => setOrgEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-            />
-          </div>
-
-          <div>
-            <label className="block text-gray-700 mb-2 text-sm">
-              Company Domain
-            </label>
-            <input
-              type="text"
-              value={orgDomain}
-              onChange={(e) => setOrgDomain(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
-            />
-            <p className="text-xs text-gray-500 mt-1">
-              Employees with @{orgDomain} can book spaces
-            </p>
-          </div>
-        </div>
-      </div>
 
       {/* Locations */}
-      <div className="bg-white rounded-lg border border-gray-200 p-5">
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <h2 className="text-gray-900 text-base">Office Locations</h2>
-            <p className="text-xs text-gray-500 mt-1">
-              {locationList.length} locations registered
-            </p>
-          </div>
-          <button
-            onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            Add Location
-          </button>
-        </div>
+      <LocationList
+        locationList={locationList}
+        openCreateModal={openCreateModal}
+        openEditModal={openEditModal}
+        requestDeleteLocation={requestDeleteLocation}
+      />
 
-        <div className="space-y-3">
-          {locationList.map((location) => (
-            <div
-              key={location.id}
-              className="border border-gray-200 rounded-lg p-3.5 hover:bg-gray-50 transition-colors"
-            >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-start gap-3">
-                  <div className="p-2 bg-orange-100 text-orange-600 rounded-lg">
-                    <MapPin className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-gray-900 text-sm font-medium">
-                      {location.name ?? "-"}
-                    </h3>
-                    <p className="text-xs text-gray-500">{location.type}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => openEditModal(location)}
-                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    title="Edit Location"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => requestDeleteLocation(location)}
-                    className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Delete Location"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Address</p>
-                  <p className="text-sm text-gray-900">{location.address}</p>
-                  <p className="text-sm text-gray-900">
-                    {location.city ?? "-"}, {location.state ?? "-"} - {location.pincode ?? "-"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Contact</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-900">
-                    <Phone className="w-3.5 h-3.5 text-gray-400" />
-                    {location.contactNumber ?? "-"}
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-
-          {locationList.length === 0 && (
-            <div className="text-center py-10">
-              <MapPin className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-gray-500">No locations added yet.</p>
-              <p className="text-xs text-gray-400">
-                Click &quot;Add Location&quot; to register your first office.
-              </p>
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Location Modal */}
       <LocationModal
@@ -291,8 +210,8 @@ export function OrgAdminProfile({ locationsData }: OrgAdminProfileProps) {
 
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
-        isOpen={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
+        isOpen={confirmOpen === "delete"}
+        onClose={() => setConfirmOpen(null)}
         onConfirm={confirmDeleteLocation}
         title="Delete Location"
         description={`Are you sure you want to delete "${locationToDelete?.name}"? This action cannot be undone.`}

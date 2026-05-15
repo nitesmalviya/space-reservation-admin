@@ -80,15 +80,16 @@ export interface DeleteOrganizationByIdData {
 }
 
 export interface UpdateOrganizationInput {
-  contactEmail?: string;
-  domain: string;
   employeeCount: number;
   id: string;
   industry: string;
   locationName: string;
-  name: string;
   primaryAdminEmail?: string;
   primaryAdminName: string;
+  name: string,
+  domain: string,
+  contactEmail: string,
+  logoUrl: string
 }
 
 export interface UpdateOrganizationByIdData {
@@ -125,4 +126,30 @@ export interface CreateOrganizationResponse {
   success: boolean;
   message: string;
   createOrganization: CreateOrganizationData;
+}
+
+export interface AllOrganizationsInput {
+  searchFilter: SearchInput;
+}
+export interface OrganizationInput {
+  organizationId: string;
+}
+
+export interface OrganizationData {
+  name: string,
+  domain: string,
+  contactEmail: string,
+  logoUrl: string
+
+}
+
+export interface OrganizationResponse {
+  organization: any;
+  data: {
+    organization: {
+      message: string;
+      success: boolean;
+      organization: OrganizationData;
+    };
+  };
 }

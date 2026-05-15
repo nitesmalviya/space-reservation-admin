@@ -1,39 +1,23 @@
-import { Location, OrgAdminProfile } from "@/components/admin/organization-profile";
+import { OrgAdminProfile } from "@/components/admin/organization-profile";
+import { getUserFromCookie } from "@/utils/get-user-from-cookie";
 import { getLocationsByOrgAction } from "@/utils/graphql/locations/action";
-const locations: Location[] = [
-  {
-    id: "1",
-    name: "Headquarters",
-    type: "Main Office",
-    address: "Bitcot Tower, Sector 15",
-    city: "Indore",
-    state: "Madhya Pradesh",
-    pincode: "452001",
-    phone: "+91 731 1234567",
-  },
-  {
-    id: "2",
-    name: "Bitcot West",
-    type: "Branch Office",
-    address: "Sector 10, Hinjewadi",
-    city: "Pune",
-    state: "Maharashtra",
-    pincode: "411057",
-    phone: "+91 20 12345678",
-  },
-  {
-    id: "3",
-    name: "Bitcot South",
-    type: "Branch Office",
-    address: "Sector 5, Electronic City",
-    city: "Bangalore",
-    state: "Karnataka",
-    pincode: "560100",
-    phone: "+91 80 12345678",
-  },
-];
+import { getOrganizationAction } from "@/utils/graphql/organization/action";
+
 
 const AdminOrganizationProfilePage = async () => {
+  const user = await getUserFromCookie();
+  const orgId = user?.orgId;
+
+  if (!orgId) {
+    console.log("orgid not found");
+  }
+  const orgRes = await getOrganizationAction({
+    organizationId: orgId
+  })
+  const orgData = orgRes?.organization?.organization ?? null;
+   const organizationData = orgData
+      ? { id: orgId, ...orgData }
+      : null;
 
   const res = await getLocationsByOrgAction({
     search: "",
@@ -42,7 +26,9 @@ const AdminOrganizationProfilePage = async () => {
   });
   const locationsData = res?.locationsByOrg?.locations || [];
 
-  return <OrgAdminProfile locationsData={locationsData} />;
+  return <OrgAdminProfile 
+    locationsData={locationsData} 
+    organizationData={organizationData}/>;
 }
 
 export default AdminOrganizationProfilePage;
