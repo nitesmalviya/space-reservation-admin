@@ -1,28 +1,42 @@
 "use client"
 import { useState } from 'react';
-import { Save, Bell, Mail, Shield, Globe, Clock, User } from 'lucide-react';
+import { Save, Bell,  Shield,  Clock, User } from 'lucide-react';
+import { NotificationSettingsData } from '@/types/settings-type';
 
-export function OrgAdminSettings() {
+interface NotificationSettingsDataProps {
+  notificationSettingsData: NotificationSettingsData
+  userData: any // Replace 'any' with the actual type for user data
+}
+
+const OrgAdminSettings = ({ notificationSettingsData, userData }: NotificationSettingsDataProps) => {
+  console.log(userData, "userData in settings page")
+
   const [settings, setSettings] = useState({
     // Notification Settings
-    emailNotifications: true,
-    bookingConfirmations: true,
-    cancellationAlerts: true,
-    dailyDigest: false,
-    weeklyReport: true,
-    
+
+    emailNotifications: notificationSettingsData?.settings?.emailNotificationsEnabled ?? false,
+    bookingConfirmations:
+      notificationSettingsData?.settings?.bookingConfirmationsEnabled ?? false,
+    cancellationAlerts:
+      notificationSettingsData?.settings?.cancellationAlertsEnabled ?? false,
+    dailyDigest:
+      notificationSettingsData?.settings?.dailyDigestEnabled ?? false,
+    weeklyReport:
+      notificationSettingsData?.settings?.weeklyReportEnabled ?? false,
+
+
     // Booking Settings
     autoApproval: false,
     allowCancellation: true,
     cancellationDeadline: 60,
     bufferTime: 10,
-    
+
     // Account Settings
-    adminName: 'Admin',
-    adminEmail: 'admin@bitcot.com',
-    phoneNumber: '+91 731 1234567',
+    adminName:  userData?.name || 'John Doe',
+    adminEmail:  userData?.email || '',
+    phoneNumber:  userData?.phoneNumber || '',
     timezone: 'Asia/Kolkata',
-    
+
     // Privacy Settings
     showEmployeeStats: true,
     allowDataExport: true,
@@ -61,7 +75,7 @@ export function OrgAdminSettings() {
               <input
                 type="text"
                 value={settings.adminName}
-                onChange={(e) => setSettings({...settings, adminName: e.target.value})}
+                onChange={(e) => setSettings({ ...settings, adminName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
               />
             </div>
@@ -70,7 +84,7 @@ export function OrgAdminSettings() {
               <input
                 type="email"
                 value={settings.adminEmail}
-                onChange={(e) => setSettings({...settings, adminEmail: e.target.value})}
+                onChange={(e) => setSettings({ ...settings, adminEmail: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
               />
             </div>
@@ -79,15 +93,15 @@ export function OrgAdminSettings() {
               <input
                 type="tel"
                 value={settings.phoneNumber}
-                onChange={(e) => setSettings({...settings, phoneNumber: e.target.value})}
+                onChange={(e) => setSettings({ ...settings, phoneNumber: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
               />
             </div>
             <div>
               <label className="block text-gray-700 mb-2 text-sm">Timezone</label>
-              <select 
+              <select
                 value={settings.timezone}
-                onChange={(e) => setSettings({...settings, timezone: e.target.value})}
+                onChange={(e) => setSettings({ ...settings, timezone: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
               >
                 <option value="Asia/Kolkata">Asia/Kolkata (IST)</option>
@@ -112,11 +126,12 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Receive email alerts for important updates</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.emailNotifications}
-                  onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, emailNotifications: e.target.checked })}
+                  className="sr-only peer"
+
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -128,11 +143,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Get notified when bookings are confirmed</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.bookingConfirmations}
-                  onChange={(e) => setSettings({...settings, bookingConfirmations: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, bookingConfirmations: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -144,11 +159,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Receive alerts when bookings are cancelled</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.cancellationAlerts}
-                  onChange={(e) => setSettings({...settings, cancellationAlerts: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, cancellationAlerts: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -160,11 +175,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Summary of daily bookings and activities</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.dailyDigest}
-                  onChange={(e) => setSettings({...settings, dailyDigest: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, dailyDigest: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -176,11 +191,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Comprehensive weekly analytics report</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.weeklyReport}
-                  onChange={(e) => setSettings({...settings, weeklyReport: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, weeklyReport: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -201,11 +216,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Automatically approve all booking requests</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.autoApproval}
-                  onChange={(e) => setSettings({...settings, autoApproval: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, autoApproval: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -217,11 +232,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Let employees cancel their own bookings</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.allowCancellation}
-                  onChange={(e) => setSettings({...settings, allowCancellation: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, allowCancellation: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -233,7 +248,7 @@ export function OrgAdminSettings() {
                 <input
                   type="number"
                   value={settings.cancellationDeadline}
-                  onChange={(e) => setSettings({...settings, cancellationDeadline: Number(e.target.value)})}
+                  onChange={(e) => setSettings({ ...settings, cancellationDeadline: Number(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">Minimum time before booking starts</p>
@@ -243,7 +258,7 @@ export function OrgAdminSettings() {
                 <input
                   type="number"
                   value={settings.bufferTime}
-                  onChange={(e) => setSettings({...settings, bufferTime: Number(e.target.value)})}
+                  onChange={(e) => setSettings({ ...settings, bufferTime: Number(e.target.value) })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm"
                 />
                 <p className="text-xs text-gray-500 mt-1">Cleaning time between bookings</p>
@@ -265,11 +280,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Display employee booking statistics publicly</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.showEmployeeStats}
-                  onChange={(e) => setSettings({...settings, showEmployeeStats: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, showEmployeeStats: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -281,11 +296,11 @@ export function OrgAdminSettings() {
                 <p className="text-xs text-gray-500">Enable exporting reports and data</p>
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={settings.allowDataExport}
-                  onChange={(e) => setSettings({...settings, allowDataExport: e.target.checked})}
-                  className="sr-only peer" 
+                  onChange={(e) => setSettings({ ...settings, allowDataExport: e.target.checked })}
+                  className="sr-only peer"
                 />
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-600"></div>
               </label>
@@ -296,7 +311,7 @@ export function OrgAdminSettings() {
               <input
                 type="number"
                 value={settings.sessionTimeout}
-                onChange={(e) => setSettings({...settings, sessionTimeout: Number(e.target.value)})}
+                onChange={(e) => setSettings({ ...settings, sessionTimeout: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 text-sm max-w-xs"
               />
               <p className="text-xs text-gray-500 mt-1">Automatically log out after inactivity</p>
@@ -325,3 +340,5 @@ export function OrgAdminSettings() {
     </div>
   );
 }
+
+export default OrgAdminSettings;

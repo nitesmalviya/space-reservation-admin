@@ -6,11 +6,6 @@ export const GET_ALL_USERS_QUERY: DocumentNode = gql`
   users(searchFilter: $searchFilter) {
     currentPage
     message
-    stats {
-      activeEmployees
-      newThisMonth
-      totalEmployees
-    }
     success
     totalItems
     totalPages
@@ -22,6 +17,9 @@ export const GET_ALL_USERS_QUERY: DocumentNode = gql`
       bookingCount
       activeStatus
       id
+       organization {
+        name
+      }
     }
   }
 }

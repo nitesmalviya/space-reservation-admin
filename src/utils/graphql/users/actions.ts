@@ -16,7 +16,7 @@ import {
 } from "@/types/users-type";
 
 
-//get all organizations action
+//Get all users action
 export const getAllUsersAction = async (
     variables: AllUsersInput,
 ): Promise<AllUsersResponse> => {
@@ -27,7 +27,7 @@ export const getAllUsersAction = async (
     return res;
 };
 
-// Remove user
+// Remove user action
 export const removeUserAction = async (
     variables: RemoveUserInput,
 ): Promise<RemoveUserResponse> => {

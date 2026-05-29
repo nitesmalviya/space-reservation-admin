@@ -1,3 +1,4 @@
+ 
 export interface SearchInput {
   limit: number;
   page: number;
@@ -30,6 +31,7 @@ export interface PrimaryAdmin {
   subId: string;
   updatedAt: string;
 }
+
 export interface Organization {
   contactEmail: string;
   domain: string;
@@ -51,8 +53,12 @@ export interface Organization {
 export interface AllOrganizationsData {
   message: string;
   success: boolean;
-  totalCount: number;
+  search: SearchInput;
   organizations: Organization[];
+  filter: {
+    industries: string[];
+    locations: string[];
+  }
 }
 
 export interface AllOrganizationsResponse {
@@ -128,9 +134,6 @@ export interface CreateOrganizationResponse {
   createOrganization: CreateOrganizationData;
 }
 
-export interface AllOrganizationsInput {
-  searchFilter: SearchInput;
-}
 export interface OrganizationInput {
   organizationId: string;
 }
@@ -140,11 +143,10 @@ export interface OrganizationData {
   domain: string,
   contactEmail: string,
   logoUrl: string
-
 }
 
 export interface OrganizationResponse {
-  organization: any;
+  organization: OrganizationData;
   data: {
     organization: {
       message: string;

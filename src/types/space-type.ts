@@ -34,6 +34,9 @@ export interface SpacesInput {
 }
 
 export interface Space {
+    organization: {
+        name: string
+    };
     slotDuration: ReactNode;
     startTime: string;
     endTime: string;
@@ -63,6 +66,9 @@ export interface Space {
         general: string[];
         meeting: string[];
         equipment: string[];
+        name: string;
+        category: string;
+        id: string;
     };
 }
 

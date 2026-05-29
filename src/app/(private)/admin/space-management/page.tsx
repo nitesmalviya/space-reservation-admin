@@ -5,7 +5,9 @@ import { cookies } from "next/headers";
 const SpaceManagementPage = async () => {
 
     const cookieStore = cookies();
+
     const userCookie = (await cookieStore).get("user")?.value;
+    
     let user = null;
 
     try {

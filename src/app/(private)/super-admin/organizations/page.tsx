@@ -1,16 +1,19 @@
 import { Organizations } from "@/components/super-admin/organizations";
-import { getAllOrganizations, getOrganizationById } from "@/store/actions/organization-action";
+import { getAllOrganizationsAction } from "@/utils/graphql/organization/action";
 
-export default async function OrganizationsPage() {
-const organizations = await getAllOrganizations({limit:10,page:1,search:""});
-console.log(organizations);
+const OrganizationsPage = async () => {
+     
+        const res = await getAllOrganizationsAction({
+            searchFilter: {
+                page: 1,
+                limit: 10,
+                search: ""
+            }
+        });
 
+        const organizationsData = res?.organizations.organizations ?? [];
 
-// const res = await getOrganizationById("d073f470-d0ec-4b47-8228-86871d376bee");
-// console.log(res);
-
-
-
-
-    return <Organizations organizationsData={organizations?.data ||null} />;
+    return <Organizations organizationsData={organizationsData || null} />;
 }
+
+export default OrganizationsPage;

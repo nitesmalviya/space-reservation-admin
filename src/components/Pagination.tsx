@@ -15,6 +15,8 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
   onItemsPerPageChange?: (itemsPerPage: number) => void;
   itemsPerPageOptions?: number[];
+  pageNeighbours?: number;
+  pageJump?: number;
   showItemsPerPage?: boolean;
   showPageInfo?: boolean;
   className?: string;
@@ -33,6 +35,8 @@ interface PaginationProps {
  *   itemsPerPage={pageSize}
  *   onPageChange={setPage}
  *   onItemsPerPageChange={setPageSize}
+ *   pageNeighbours={2}
+ *   pageJump={5}
  * />
  */
 export const Pagination: React.FC<PaginationProps> = ({
@@ -43,15 +47,17 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   onItemsPerPageChange,
   itemsPerPageOptions = [10, 20, 50, 100],
+  pageNeighbours = 2,
+  pageJump = 10,
   showItemsPerPage = true,
   showPageInfo = true,
   className = "",
 }) => {
-  if (totalPages <= 1 && !showItemsPerPage) return null;
+  if (totalPages <= 0 && !showItemsPerPage && !showPageInfo) return null;
 
   // Build the visible page numbers with ellipsis
   const getPageNumbers = (): (number | "...")[] => {
-    const delta = 1; // siblings on each side of current page
+    const delta = pageNeighbours; // siblings on each side of current page
     const range: number[] = [];
     const rangeWithDots: (number | "...")[] = [];
     let l: number | undefined;
@@ -85,11 +91,11 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   // Compute display range for "Showing X – Y of Z"
   const firstItem =
-    totalItems !== undefined ? (currentPage - 1) * itemsPerPage + 1 : null;
+    totalItems === undefined ? null : (currentPage - 1) * itemsPerPage + 1;
   const lastItem =
-    totalItems !== undefined
-      ? Math.min(currentPage * itemsPerPage, totalItems)
-      : null;
+    totalItems === undefined
+      ? null
+      : Math.min(currentPage * itemsPerPage, totalItems);
 
   const btnBase =
     "inline-flex items-center justify-center h-8 min-w-[2rem] px-2 rounded-lg text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-orange-300 disabled:opacity-40 disabled:cursor-not-allowed";
@@ -101,7 +107,7 @@ export const Pagination: React.FC<PaginationProps> = ({
 
   return (
     <div
-      className={`flex flex-col sm:flex-row items-end gap-3 py-3 px-4 bg-white rounded-lg ${className}`}
+      className={`flex flex-col sm:flex-row items-end gap-3 py-3 px-4 bg-white rounded-lg justify-between ${className}`}
     >
       {/* Left: page info + items-per-page */}
       <div className="flex items-center gap-3 text-sm text-gray-600">
@@ -121,8 +127,11 @@ export const Pagination: React.FC<PaginationProps> = ({
 
         {showItemsPerPage && onItemsPerPageChange && (
           <div className="flex items-center gap-1.5">
-            <label className="text-gray-500 whitespace-nowrap">Rows:</label>
+            <label htmlFor="pagination-items-per-page" className="text-gray-500 whitespace-nowrap">
+              Rows:
+            </label>
             <select
+              id="pagination-items-per-page"
               value={itemsPerPage}
               onChange={(e) => {
                 onItemsPerPageChange(Number(e.target.value));
@@ -141,7 +150,7 @@ export const Pagination: React.FC<PaginationProps> = ({
       </div>
 
       {/* Right: pagination controls */}
-      {totalPages > 1 && (
+      {totalPages >= 1 && (
         <nav aria-label="Pagination" className="flex items-center gap-1">
           {/* First page */}
           <button
@@ -165,11 +174,22 @@ export const Pagination: React.FC<PaginationProps> = ({
             <ChevronLeft className="w-3.5 h-3.5" />
           </button>
 
+          {/* Previous jump (5 pages) */}
+          <button
+            onClick={() => onPageChange(Math.max(1, currentPage - pageJump))}
+            disabled={currentPage === 1}
+            className={`${btnBase} ${btnNav}`}
+            title={`Previous ${pageJump} pages`}
+            aria-label={`Previous ${pageJump} pages`}
+          >
+            Prev {pageJump}
+          </button>
+
           {/* Page numbers */}
           {pageNumbers.map((page, idx) =>
             page === "..." ? (
               <span
-                key={`ellipsis-${idx}`}
+                key={`ellipsis-${idx}-${currentPage}`}
                 className="inline-flex items-center justify-center h-8 min-w-[2rem] text-sm text-gray-400 px-1"
               >
                 …
@@ -177,7 +197,7 @@ export const Pagination: React.FC<PaginationProps> = ({
             ) : (
               <button
                 key={page}
-                onClick={() => onPageChange(page as number)}
+                onClick={() => onPageChange(page)}
                 className={`${btnBase} ${
                   currentPage === page ? btnActive : btnDefault
                 }`}
@@ -198,6 +218,17 @@ export const Pagination: React.FC<PaginationProps> = ({
             aria-label="Next page"
           >
             <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+
+          {/* Next jump (5 pages) */}
+          <button
+            onClick={() => onPageChange(Math.min(totalPages, currentPage + pageJump))}
+            disabled={currentPage === totalPages}
+            className={`${btnBase} ${btnNav}`}
+            title={`Next ${pageJump} pages`}
+            aria-label={`Next ${pageJump} pages`}
+          >
+            Next {pageJump}
           </button>
 
           {/* Last page */}

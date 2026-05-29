@@ -54,8 +54,8 @@ const NewSpaceModal = ({
 }: NewSpaceModalProps) => {
 
   const userData = useAppSelector((state) => state.auth.user);
+  console.log("user Data:", userData);
  
-
   const [formData, setFormData] = useState<SpaceFormData>(emptyForm);
   const [, forceUpdate] = useState(0);
   

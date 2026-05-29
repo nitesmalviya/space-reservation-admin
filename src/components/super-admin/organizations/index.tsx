@@ -1,10 +1,10 @@
 "use client";
-import { useState } from "react";
-import { Plus, Edit, Trash2, Eye, Search } from "lucide-react";
+
+import { useCallback, useMemo, useState } from "react";
+import { Plus } from "lucide-react";
 import { OrganizationForm } from "@/components/OrganizationForm";
 import SearchBox from "@/components/SearchBox";
 import {
-  AllOrganizationsData,
   CreateOrganizationInput,
   Organization,
   UpdateOrganizationInput,
@@ -16,12 +16,19 @@ import {
 } from "@/store/actions/organization-action";
 import { toast } from "sonner";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { getAllOrganizationsAction } from "@/utils/graphql/organization/action";
+import { debounce } from "@/utils/common-service";
+import TableRow from "./table-row";
 
 interface OrganizationsProps {
-  readonly organizationsData: AllOrganizationsData | null;
+  readonly organizationsData: Organization[];
 }
 
 export function Organizations({ organizationsData }: OrganizationsProps) {
+  const [organizationsList, setOrganizationsList] = useState<OrganizationsProps[]>(
+    organizationsData || []
+  );
+
   const [showForm, setShowForm] = useState(false);
   const [editingOrg, setEditingOrg] = useState<Organization | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -29,12 +36,16 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
   const [loading, setLoading] = useState(false);
   const [showDltModel, setShowDltModel] = useState(false);
 
-  const filteredOrgs = organizationsData?.organizations.filter(
-    (org) =>
-      org.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.industry.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      org.location.name.toLowerCase().includes(searchTerm.toLowerCase()),
-  );
+  const filteredOrgs = useMemo(() => {
+    return organizationsList.filter(
+      (org) =>
+        (org.name?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (org.industry?.toLowerCase() || "").includes(searchTerm.toLowerCase()) ||
+        (org.location?.name?.toLowerCase() || "").includes(searchTerm.toLowerCase())
+    );
+  }, [organizationsList, searchTerm]);
+
+  console.log(organizationsData, "organization data")
 
   const handleEdit = (org: Organization) => {
     setState("edit");
@@ -71,8 +82,20 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
 
     try {
       const res = await createOrganization(data);
+      debugger
       if (res?.success) {
         toast.success(res?.message);
+
+        const refreshData = await getAllOrganizationsAction({
+          searchFilter: {
+            page: 1,
+            limit: 10,
+            search: ""
+          }
+        });
+
+        setOrganizationsList(refreshData?.organizations.organizations || []);
+
         setShowForm(false);
       } else {
         toast.error(res?.message);
@@ -91,6 +114,16 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
       const res = await updateOrganizationById(data);
       if (res?.success) {
         toast.success(res?.message);
+
+        const refreshData = await getAllOrganizationsAction({
+          searchFilter: {
+            page: 1,
+            limit: 10,
+            search: ""
+          }
+        });
+        setOrganizationsList(refreshData?.organizations.organizations || []);
+
         setShowForm(false);
       } else {
         toast.error(res?.message);
@@ -110,6 +143,16 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
       const res = await removeOrganizationById(id);
       if (res?.success) {
         toast.success(res?.message);
+
+        const refreshData = await getAllOrganizationsAction({
+          searchFilter: {
+            page: 1,
+            limit: 10,
+            search: ""
+          }
+        });
+        setOrganizationsList(refreshData?.organizations.organizations || []);
+
         setShowDltModel(false);
       } else {
         toast.error(res?.message);
@@ -120,6 +163,16 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
       setLoading(false);
     }
   };
+
+
+
+  // Search query
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setSearchTerm(search);
+    }, 500),
+    []
+  )
 
   return (
     <div className="p-5">
@@ -142,8 +195,7 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">
           <SearchBox
-            value={searchTerm}
-            onChange={setSearchTerm}
+            onSearchChange={handleDebounce}
             placeholder="Search organizations..."
           />
         </div>
@@ -176,55 +228,19 @@ export function Organizations({ organizationsData }: OrganizationsProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredOrgs?.map((org) => (
-                <tr key={org.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3 text-gray-900 text-sm">
-                    {org.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.primaryAdmin.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.industry}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.location.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {org.employeeCount}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs">
-                      {org.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleView(org)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleEdit(org)}
-                        className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                      <button
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        onClick={() => openDltCnfrModel(org)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
+
+              {filteredOrgs?.map((organization) => (
+                <TableRow
+                  key={organization.id}
+                  organization={organization}
+                  handleView={handleView}
+                  handleEdit={handleEdit}
+                  openDltCnfrModel={openDltCnfrModel} />
               ))}
             </tbody>
           </table>
         </div>
+
         {showForm && (
           <OrganizationForm
             organization={editingOrg}

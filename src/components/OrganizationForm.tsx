@@ -25,6 +25,7 @@ export function OrganizationForm({
   handleUpdate,
   loading,
 }: OrganizationFormProps) {
+  
   const [formData, setFormData] = useState({
     name: organization?.name || "",
     primaryAdminName: organization?.primaryAdmin.name || "",

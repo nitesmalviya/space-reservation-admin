@@ -9,34 +9,21 @@ export const CREATE_ORGANIZATION: DocumentNode = gql`
     createOrganization(createOrganizationInput: $createOrganizationInput) {
       message
       success
-      organization {
-        domain
-        employeeCount
-        id
-        industry
-        name
-        location {
-          id
-          name
-        }
-        primaryAdmin {
-          id
-          name
-        }
-        status
-        updatedAt
-      }
     }
   }
 `;
+
+
 
 // GET ALL ORGANIZATIONS
 export const GET_ALL_ORGANIZATIONS_QUERY: DocumentNode = gql`
   query Organizations($searchFilter: SearchFilterInput) {
     organizations(searchFilter: $searchFilter) {
+    currentPage
       message
       success
-      totalCount
+    totalItems
+    totalPages
       organizations {
         employeeCount
         id
@@ -56,6 +43,7 @@ export const GET_ALL_ORGANIZATIONS_QUERY: DocumentNode = gql`
     }
   }
 `;
+
 
 // GET ORGANIZATION BY ID
 export const GET_ORGANIZATION_BY_ID_QUERY: DocumentNode = gql`
@@ -153,7 +141,7 @@ mutation UpdateOrganization($updateOrganizationInput: UpdateOrganizationInput!) 
   `;
 
 
-  // Singele organiation details
+// Singele organiation details
 
 export const GET_ORGANIZATION_QUERY: DocumentNode = gql`
   query Organization($organizationId: String!) {

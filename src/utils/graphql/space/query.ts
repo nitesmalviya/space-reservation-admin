@@ -41,6 +41,9 @@ query Spaces($filter: SpaceFilterInput) {
         name
         category
       }
+      organization {
+        name
+      }
     }
     message
     success

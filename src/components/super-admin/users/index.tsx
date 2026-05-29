@@ -1,158 +1,165 @@
 "use client";
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Plus, Edit, Shield, Power } from "lucide-react";
 import Pagination from "@/components/Pagination";
 import SearchBox from "@/components/SearchBox";
 import EmployeeModal from "@/components/employee-modal";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { debounce } from "@/utils/common-service";
+import { AllUsersData, UpdateUserInput, UserItem } from "@/types/users-type";
+import { toast } from "sonner";
+import { getAllUsersAction, removeUserAction, updateUserAction } from "@/utils/graphql/users/actions";
+import TableRow from "./table-row";
 
-interface User {
-  id: string;
-  name: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  organization: string;
-  role: string;
-  status: "Active" | "Inactive";
+interface UsersProps {
+  readonly usersData: AllUsersData;
 }
 
-export function Users() {
+export function Users({ usersData }: UsersProps) {
+  const [usersList, setUsersList] = useState<UserItem[]>(usersData.users || []);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Employee Modal state
   const [showEmployeeModal, setShowEmployeeModal] = useState(false);
-  const [modalMode, setModalMode] = useState<"create" | "update">("create");
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<UserItem | null>(null);
 
   // Confirmation modal state
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const [userToToggle, setUserToToggle] = useState<User | null>(null);
+  const [userToToggle, setUserToToggle] = useState<UserItem | null>(null);
 
-  const users: User[] = [
-    {
-      id: "1",
-      name: "John Smith",
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@bitcot.com",
-      organization: "Tech Solutions Inc.",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "2",
-      name: "Sarah Johnson",
-      firstName: "Sarah",
-      lastName: "Johnson",
-      email: "sarah.j@globalmarketing.com",
-      organization: "Global Marketing Co.",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "3",
-      name: "Michael Chen",
-      firstName: "Michael",
-      lastName: "Chen",
-      email: "mchen@financepartners.com",
-      organization: "Finance Partners LLC",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "4",
-      name: "Emily Davis",
-      firstName: "Emily",
-      lastName: "Davis",
-      email: "emily@creativestudios.com",
-      organization: "Creative Studios",
-      role: "Admin",
-      status: "Active",
-    },
-    {
-      id: "5",
-      name: "Alex Martinez",
-      firstName: "Alex",
-      lastName: "Martinez",
-      email: "alex.m@bitcot.com",
-      organization: "Tech Solutions Inc.",
-      role: "User",
-      status: "Active",
-    },
-    {
-      id: "6",
-      name: "Jessica Lee",
-      firstName: "Jessica",
-      lastName: "Lee",
-      email: "jlee@globalmarketing.com",
-      organization: "Global Marketing Co.",
-      role: "Manager",
-      status: "Active",
-    },
-    {
-      id: "7",
-      name: "David Brown",
-      firstName: "David",
-      lastName: "Brown",
-      email: "dbrown@financepartners.com",
-      organization: "Finance Partners LLC",
-      role: "User",
-      status: "Inactive",
-    },
-    {
-      id: "8",
-      name: "Lisa Wang",
-      firstName: "Lisa",
-      lastName: "Wang",
-      email: "lwang@creativestudios.com",
-      organization: "Creative Studios",
-      role: "User",
-      status: "Active",
-    },
-  ];
+  const [loading, setLoading] = useState(false);
 
-  const filteredUsers = users.filter(
-    (user) =>
-      user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.organization.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.role.toLowerCase().includes(searchTerm.toLowerCase()),
+  const users: UserItem[] = usersList ?? [];
+
+  const filteredUsers = useMemo(
+    () =>
+      users.filter((user) =>
+        (user.name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+
+        (user.email || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+
+        (user.organization?.name || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+
+        (user.role || "")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase())
+      ),
+    [searchTerm, users],
   );
+
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
+  const paginatedUsers = filteredUsers.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage,
+  );
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, itemsPerPage]);
+
+  // search debounce
+  const handleDebounce = useCallback(
+    debounce((search: string) => {
+      setSearchTerm(search);
+    }, 300),
+    []
+  );
+
 
   const handleOpenAdd = () => {
     setSelectedUser(null);
-    setModalMode("create");
     setShowEmployeeModal(true);
   };
 
-  const handleOpenEdit = (user: User) => {
+  const handleOpenEdit = (user: UserItem) => {
     setSelectedUser(user);
-    setModalMode("update");
     setShowEmployeeModal(true);
   };
 
-  const handleSubmitEmployee = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: call add/update user API
-    setShowEmployeeModal(false);
+  const handleSaveEmployee = async (payload: UpdateUserInput) => {
+    // Placeholder: save employee action not implemented yet
+    try {
+      setLoading(true);
+
+      if (selectedUser) {
+        const res = await updateUserAction(payload);
+        debugger
+        if (res?.updateUser.success) {
+          toast.success(res?.updateUser?.message);
+
+          const refreshData = await getAllUsersAction({
+            searchFilter: {
+              page: currentPage,
+              limit: itemsPerPage,
+              search: searchTerm,
+            },
+          });
+          setUsersList(refreshData?.users?.users || []);
+          // Update the users list with the refreshed data
+          // This assumes you have a way to update the usersData prop, such as lifting state up or using a global store
+        } else {
+          toast.error(res?.updateUser?.message || "Failed to update user.");
+        }
+      } else {
+        toast.error("Failed to create user.");
+      }
+    } catch (error) {
+      toast.error("Failed to update user.");
+    } finally {
+      setLoading(false);
+      setSelectedUser(null);
+      setShowEmployeeModal(false);
+    }
   };
 
-  const handleRequestToggle = (user: User) => {
+  const handleRequestToggle = (user: UserItem) => {
     setUserToToggle(user);
     setConfirmOpen(true);
+
   };
 
-  const handleConfirmToggle = () => {
-    // TODO: call toggle status API for userToToggle.id
-    setUserToToggle(null);
-    setConfirmOpen(false);
+  const handleConfirmToggle = async () => {
+    // Placeholder: toggle user active status action not implemented yet
+    try {
+      setLoading(true);
+      const res = await removeUserAction({
+        id: userToToggle?.id || "",
+      });
+
+      if (res?.removeUserById.success) {
+        toast.success(res?.removeUserById.message);
+        const refreshData = await getAllUsersAction({
+          searchFilter: {
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchTerm,
+          },
+        });
+        setUsersList(refreshData?.users?.users || []);
+      } else {
+        toast.error(res?.removeUserById.message || "Failed to toggle user status.");
+      }
+    } catch (error) {
+      toast.error("Failed to toggle user status.");
+    } finally {
+      setUserToToggle(null);
+      setConfirmOpen(false);
+      setLoading(false);
+    }
   };
 
   const handleModifyRole = (userId: string) => {
-    // TODO: open role modify modal or call API
+    // Placeholder: modify role action not implemented yet
   };
+
 
   return (
     <div className="p-5">
@@ -175,8 +182,7 @@ export function Users() {
       <div className="bg-white rounded-lg border border-gray-200">
         <div className="p-3 border-b border-gray-200">
           <SearchBox
-            value={searchTerm}
-            onChange={setSearchTerm}
+            onSearchChange={handleDebounce}
             placeholder="Search users..."
           />
         </div>
@@ -206,86 +212,41 @@ export function Users() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-5 py-3 text-gray-900 text-sm">
-                    {user.name}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {user.email}
-                  </td>
-                  <td className="px-5 py-3 text-gray-600 text-sm">
-                    {user.organization}
-                  </td>
-                  <td className="px-5 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.role === "Admin"
-                          ? "bg-purple-100 text-purple-700"
-                          : user.role === "Manager"
-                            ? "bg-blue-100 text-blue-700"
-                            : "bg-gray-100 text-gray-700"
-                      }`}
-                    >
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs ${
-                        user.status === "Active"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleModifyRole(user.id)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="Modify Role"
-                      >
-                        <Shield className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleRequestToggle(user)}
-                        className={`p-1.5 rounded-lg transition-colors ${
-                          user.status === "Active"
-                            ? "text-red-600 hover:bg-red-50"
-                            : "text-green-600 hover:bg-green-50"
-                        }`}
-                        title={
-                          user.status === "Active" ? "Deactivate" : "Activate"
-                        }
-                      >
-                        <Power className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => handleOpenEdit(user)}
-                        className="p-1.5 text-orange-600 hover:bg-orange-50 rounded-lg transition-colors"
-                        title="Edit Employee"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
-                    </div>
+              {paginatedUsers.length > 0 ? (
+                paginatedUsers.map((user: UserItem) => {
+                  return (
+                    <TableRow 
+                      user={user} 
+                      handleRequestToggle={handleRequestToggle} 
+                      handleOpenEdit={handleOpenEdit} 
+                      handleModifyRole={handleModifyRole} />
+                  );
+                })
+              ) : (
+                <tr>
+                  <td className="px-5 py-6 text-center text-sm text-gray-500" colSpan={6}>
+                    No users found.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
-        {/* <Pagination currentPage={currentPage} totalPages={7} onPageChange={(page:number) => setCurrentPage(page)} /> */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalItems={filteredUsers.length}
+          itemsPerPage={itemsPerPage}
+          onPageChange={(page: number) => setCurrentPage(page)}
+          onItemsPerPageChange={(pageSize: number) => setItemsPerPage(pageSize)}
+        />
       </div>
 
       {/* Add / Edit Employee Modal */}
       <EmployeeModal
-        showEmployeeModal={showEmployeeModal}
-        setShowEmployeeModal={setShowEmployeeModal}
-        handleSubmitEmployee={handleSubmitEmployee}
-        state={modalMode}
+        isOpen={showEmployeeModal}
+        onClose={() => setShowEmployeeModal(false)}
+        onSave={handleSaveEmployee}
         selectedEmployee={selectedUser}
       />
 
@@ -298,18 +259,16 @@ export function Users() {
         }}
         onConfirm={handleConfirmToggle}
         title={
-          userToToggle?.status === "Active"
+          userToToggle?.activeStatus
             ? "Deactivate Employee"
             : "Activate Employee"
         }
         description={
-          userToToggle?.status === "Active"
+          userToToggle?.activeStatus
             ? `Are you sure you want to deactivate "${userToToggle?.name}"? They will lose access.`
             : `Are you sure you want to activate "${userToToggle?.name}"? They will regain access.`
         }
-        confirmLabel={
-          userToToggle?.status === "Active" ? "Deactivate" : "Activate"
-        }
+        confirmLabel={userToToggle?.activeStatus ? "Deactivate" : "Activate"}
         cancelLabel="Cancel"
         variant="info"
       />

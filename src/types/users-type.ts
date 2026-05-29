@@ -1,22 +1,40 @@
+export interface AllUsersInput {
+  searchFilter: {
+    page: number;
+    limit: number;
+    search?: string;
+  };
+}
+
 export interface UserStats {
   activeEmployees: number;
   newThisMonth: number;
   totalEmployees: number;
 }
 
+export type UserRole = "USER" | "MANAGER" | "ADMIN";
+
+export interface Organization {
+  name: string;
+}
+
 export interface UserItem {
+  message(message: any): unknown;
+  success: any;
   id: string;
   email: string;
   name: string;
   orgId: string;
-  role: string;
+  role: UserRole;
   phoneNumber: string | null;
   profileImageUrl: string | null;
   subId: string | null;
   activeStatus: boolean;
+  bookingCount: number;
   createdAt: string;
   updatedAt: string;
-  bookingCount: number;
+
+  organization?: Organization | null;
 }
 
 export interface AllUsersData {
@@ -28,29 +46,26 @@ export interface AllUsersData {
 }
 
 export interface AllUsersResponse {
-  users: never[];
-  allUsers: AllUsersData;
+  users: AllUsersData;
 }
 
-// for update user
+
+// Update User
 export interface UpdateUserInput {
   id: string;
   name?: string;
   email?: string;
   role?: UserRole;
-  phoneNumber?: string | null;
-  profileImageUrl?: string | null;
-  activeStatus?: boolean;
 }
-export type UserRole = "USER" | "MANAGER" | "ADMIN";
 
 export interface UpdateUserResponse {
-  updateUser: any;
+  updateUser: UserItem;
   success: boolean;
   message: string;
 }
 
-// for create user
+
+// Create User
 export interface CreateUserInput {
   name: string;
   email: string;
@@ -59,13 +74,20 @@ export interface CreateUserInput {
   profileImageUrl?: string | null;
 }
 
-// for delete user
+export interface CreateUserResponse {
+  createUser: UserItem;
+  success: boolean;
+  message: string;
+}
+
+
+// Remove User
 export interface RemoveUserInput {
   id: string;
 }
 
 export interface RemoveUserResponse {
-  removeUserById: any;
+  removeUserById: UserItem;
   success: boolean;
   message: string;
 }
